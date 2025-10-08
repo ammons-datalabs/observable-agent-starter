@@ -1,0 +1,167 @@
+{
+  "creator_identity": {
+    "creator_id": "UC2468246",
+    "handle": "@creatorlabdaily",
+    "name": "Creator Lab Daily",
+    "niche": "Short-form editing workflows",
+    "description": "Daily experiments, templates, and SOPs for shorts-first creator teams.",
+    "monetization": "Template marketplace",
+    "primary_goal": "Drive template pack sales",
+    "secondary_goals": [
+      "Expand Discord community",
+      "Showcase customer case studies"
+    ]
+  },
+  "call_notes": [
+    {
+      "date": "2024-05-27",
+      "summary": "Preparing for product launch bundle and rethinking shorts cadence.",
+      "key_takeaways": [
+        "Need more behind-the-scenes edits",
+        "Highlight customer success clips",
+        "Test AI-captioning tool integrations"
+      ],
+      "action_items": [
+        "Compile customer testimonials",
+        "Audit shorts post timing"
+      ]
+    }
+  ],
+  "analytics": {
+    "subscribers": 61200,
+    "views_last_28_days": 210000,
+    "avg_view_duration_seconds": 145,
+    "top_videos": [
+      {
+        "title": "We Built A Shorts Editing Pipeline In 48 Hours",
+        "views": 58000,
+        "watch_time_hours": 190
+      },
+      {
+        "title": "3 Automations Every Shorts Team Needs",
+        "views": 42000,
+        "watch_time_hours": 140
+      }
+    ],
+    "upload_frequency": {
+      "planned_per_week": 5,
+      "actual_last_28_days": 18
+    }
+  },
+  "content_library": {
+    "pillars": [
+      "Automation walk-throughs",
+      "Template showcases",
+      "Creator case studies"
+    ],
+    "upcoming_ideas": [
+      {
+        "title": "AI Caption Tool Shootout",
+        "status": "ideation",
+        "notes": "Include real output samples"
+      },
+      {
+        "title": "How We Script Shorts In Batches",
+        "status": "outline",
+        "notes": "Add notion template download"
+      }
+    ]
+  },
+  "market_research": {
+    "competitors": [
+      {
+        "channel": "ShortStack",
+        "positioning": "Short-form editing hacks for agencies"
+      },
+      {
+        "channel": "Daily Reel Ops",
+        "positioning": "Systems-thinking for vertical video teams"
+      }
+    ],
+    "audience": {
+      "persona": "Shorts-focused creative lead",
+      "pain_points": [
+        "Scaling edits without quality drop",
+        "Keeping templates up to date"
+      ],
+      "desired_outcomes": [
+        "Faster delivery times",
+        "Higher template conversion"
+      ]
+    }
+  },
+  "operations": {
+    "owner": "Dee Reynolds",
+    "talent_manager": "Kai Morgan",
+    "strategist": "Rae Kim",
+    "editor_pod": ["Piper", "Noah", "Sami"],
+    "additional_team": [
+      {"role": "Motion Designer", "name": "Aaron Soto"},
+      {"role": "Community Lead", "name": "Mena Flores"}
+    ],
+    "timezone": "America/Los_Angeles",
+    "automation_notes": "Make queued shorts via Retool board, sync to Later.",
+    "integrations": ["Zapier", "Airtable", "Later", "Discord"]
+  },
+  "community": {
+    "sentiment": "High energy, frequent feedback",
+    "response_sla_hours": 6,
+    "pending_replies": 15,
+    "highlighted_threads": [
+      "https://youtube.com/comment/cld-2024-05-29",
+      "https://discord.com/channels/cld/highlights"
+    ],
+    "macros": [
+      "Drop your current workflow challenge!",
+      "Here’s the template link you asked for."
+    ],
+    "notes": "Discord AMA planned for June 10."
+  },
+  "workflows": [
+    {
+      "title": "Launch template bundle landing page",
+      "status": "in_progress",
+      "due_date": "2024-06-08",
+      "owner": "Kai Morgan",
+      "notes": "Need pricing hero copy"
+    },
+    {
+      "title": "Batch record July shorts",
+      "status": "scheduled",
+      "due_date": "2024-06-20",
+      "owner": "Dee Reynolds",
+      "notes": "Coordinate studio time"
+    }
+  ],
+  "experiments": [
+    {
+      "name": "Caption Style Test",
+      "hypothesis": "Dynamic word highlights boost retention",
+      "metric": "Avg view duration",
+      "status": "running",
+      "latest_result": "+9% avg retention on highlighted version",
+      "next_check_in": "2024-06-12"
+    },
+    {
+      "name": "Template CTA Format",
+      "hypothesis": "Carousel promo drives more Discord joins",
+      "metric": "Discord join rate",
+      "status": "completed",
+      "latest_result": "Carousel + pinned comment = +23% joins"
+    }
+  ],
+  "asset_library": [
+    {
+      "asset_type": "Template",
+      "title": "Shorts Storyboard (Figma)",
+      "url": "https://figma.com/file/cld-storyboard",
+      "notes": "Reference for outline generator"
+    },
+    {
+      "asset_type": "Case Study",
+      "title": "Agency automation success",
+      "url": "https://drive.google.com/file/d/cld-case-study",
+      "notes": "Use for social proof in scripts"
+    }
+  ]
+}

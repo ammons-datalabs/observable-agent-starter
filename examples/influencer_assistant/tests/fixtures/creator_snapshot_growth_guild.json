@@ -1,0 +1,167 @@
+{
+  "creator_identity": {
+    "creator_id": "UC7654321",
+    "handle": "@growthguild",
+    "name": "Growth Guild",
+    "niche": "B2B marketing experiments",
+    "description": "Case studies, teardown streams, and weekly growth experiments for B2B marketers.",
+    "monetization": "Consulting retainers",
+    "primary_goal": "Increase enterprise demo requests",
+    "secondary_goals": [
+      "Grow newsletter subscribers",
+      "Launch community roundtables"
+    ]
+  },
+  "call_notes": [
+    {
+      "date": "2024-04-18",
+      "summary": "Q2 focus on enterprise pipeline and revamping live show format.",
+      "key_takeaways": [
+        "Highlight enterprise case studies",
+        "Double down on LinkedIn cross-promotion",
+        "Prototype monthly live teardown"
+      ],
+      "action_items": [
+        "Outline teardown series",
+        "Draft enterprise nurture sequence"
+      ]
+    }
+  ],
+  "analytics": {
+    "subscribers": 28500,
+    "views_last_28_days": 88000,
+    "avg_view_duration_seconds": 312,
+    "top_videos": [
+      {
+        "title": "We Rebuilt An ABM Strategy In 7 Days",
+        "views": 26000,
+        "watch_time_hours": 210
+      },
+      {
+        "title": "Live Funnel Teardown: SaaS Edition",
+        "views": 19500,
+        "watch_time_hours": 180
+      }
+    ],
+    "upload_frequency": {
+      "planned_per_week": 1,
+      "actual_last_28_days": 5
+    }
+  },
+  "content_library": {
+    "pillars": [
+      "Enterprise growth playbooks",
+      "Live show replays",
+      "Tooling breakdowns"
+    ],
+    "upcoming_ideas": [
+      {
+        "title": "RevOps Dashboard Audit",
+        "status": "outline",
+        "notes": "Need pipeline visuals"
+      },
+      {
+        "title": "Can Cold Email Still Work In 2024?",
+        "status": "research",
+        "notes": "Gather segmented metrics"
+      }
+    ]
+  },
+  "market_research": {
+    "competitors": [
+      {
+        "channel": "DemandLayer",
+        "positioning": "Demand gen experiments for mid-market SaaS"
+      },
+      {
+        "channel": "Outbound Ops",
+        "positioning": "Outbound playbooks and automation"
+      }
+    ],
+    "audience": {
+      "persona": "Senior demand gen manager",
+      "pain_points": [
+        "Proving pipeline impact",
+        "Finding fresh campaign angles"
+      ],
+      "desired_outcomes": [
+        "Larger SQL volume",
+        "Faster experimentation cycles"
+      ]
+    }
+  },
+  "operations": {
+    "owner": "Kara Bloom",
+    "talent_manager": "Luis Ortega",
+    "strategist": "Priya Shah",
+    "editor_pod": ["Mina", "Caleb"],
+    "additional_team": [
+      {"role": "Copywriter", "name": "Jia Lee"},
+      {"role": "Paid Media", "name": "Matt Perez"}
+    ],
+    "timezone": "America/Chicago",
+    "automation_notes": "Zapier connects HubSpot forms to nurture sequences.",
+    "integrations": ["HubSpot", "Airtable", "Fathom"]
+  },
+  "community": {
+    "sentiment": "Positive but tactical",
+    "response_sla_hours": 24,
+    "pending_replies": 7,
+    "highlighted_threads": [
+      "https://youtube.com/comment/gg-2024-05-19",
+      "https://youtube.com/comment/gg-2024-05-07"
+    ],
+    "macros": [
+      "Thanks for joining the teardown!",
+      "DM us for enterprise playbooks."
+    ],
+    "notes": "LinkedIn cross-posts drive high-quality comments."
+  },
+  "workflows": [
+    {
+      "title": "Prep June teardown guest brief",
+      "status": "in_progress",
+      "due_date": "2024-06-05",
+      "owner": "Luis Ortega",
+      "notes": "Need talking points from sales team"
+    },
+    {
+      "title": "Update webinar email nurtures",
+      "status": "blocked",
+      "due_date": "2024-06-12",
+      "owner": "Jia Lee",
+      "notes": "Waiting on new case study metrics"
+    }
+  ],
+  "experiments": [
+    {
+      "name": "Teardown Shorts Remix",
+      "hypothesis": "Short clips from live shows will improve reach",
+      "metric": "Shorts views",
+      "status": "running",
+      "latest_result": "+18% view velocity week over week",
+      "next_check_in": "2024-06-15"
+    },
+    {
+      "name": "Carousel CTA Test",
+      "hypothesis": "Carousel end screens increase demo clicks",
+      "metric": "Demo form CTR",
+      "status": "planned",
+      "next_check_in": "2024-06-25"
+    }
+  ],
+  "asset_library": [
+    {
+      "asset_type": "SOP",
+      "title": "LinkedIn cross-promotion checklist",
+      "url": "https://drive.google.com/file/d/gg-sop",
+      "notes": "Used weekly by community manager"
+    },
+    {
+      "asset_type": "Transcript",
+      "title": "Live Funnel Teardown (May)",
+      "url": "https://drive.google.com/file/d/gg-transcript",
+      "notes": "Use for highlight clip sourcing"
+    }
+  ]
+}

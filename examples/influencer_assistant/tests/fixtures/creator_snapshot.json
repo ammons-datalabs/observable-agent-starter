@@ -1,0 +1,160 @@
+{
+  "creator_identity": {
+    "creator_id": "CR1234567",
+    "handle": "@opsplaybook",
+    "name": "Ops Playbook",
+    "niche": "Creator operations systems",
+    "description": "Weekly breakdowns of AI-assisted workflows for creative entrepreneurs.",
+    "monetization": "Service sales",
+    "primary_goal": "Grow service-qualified leads",
+    "secondary_goals": [
+      "Increase Shorts-driven discovery",
+      "Highlight client outcomes"
+    ]
+  },
+  "call_notes": [
+    {
+      "date": "2024-05-02",
+      "summary": "Creator wants to grow service leads and test shorts.",
+      "key_takeaways": [
+        "Target mid-level creators running service businesses",
+        "Highlight actionable SOPs over theory",
+        "Launch two-test-series of YouTube Shorts"
+      ],
+      "action_items": [
+        "Research competitor positioning",
+        "Draft Shorts experiment calendar"
+      ]
+    }
+  ],
+  "analytics": {
+    "subscribers": 45200,
+    "views_last_28_days": 120000,
+    "avg_view_duration_seconds": 285,
+    "top_videos": [
+      {
+        "title": "How We Automate Client Onboarding With AI",
+        "views": 34000,
+        "watch_time_hours": 310
+      },
+      {
+        "title": "3 AI Workflows Every Creative Agency Needs",
+        "views": 28000,
+        "watch_time_hours": 240
+      }
+    ],
+    "upload_frequency": {
+      "planned_per_week": 2,
+      "actual_last_28_days": 1
+    }
+  },
+  "content_library": {
+    "pillars": [
+      "AI tooling deep dives",
+      "Agency growth playbooks",
+      "Behind-the-scenes ops"
+    ],
+    "upcoming_ideas": [
+      {
+        "title": "Building an Influencer Ops Copilot",
+        "status": "ideation",
+        "notes": "Need comparative angle vs traditional VAs"
+      },
+      {
+        "title": "We Automated Comment Replies (Here Is What Happened)",
+        "status": "outline",
+        "notes": "Requires case study metrics"
+      }
+    ]
+  },
+  "market_research": {
+    "competitors": [
+      {
+        "channel": "AgencyFlow",
+        "positioning": "Automation-first agency operations"
+      },
+      {
+        "channel": "CreatorOps Collective",
+        "positioning": "Scaling agency retainers with systems"
+      }
+    ],
+    "audience": {
+      "persona": "Agency owner / operator",
+      "pain_points": [
+        "Scaling client work without burning out",
+        "Turning YouTube views into service leads"
+      ],
+      "desired_outcomes": [
+        "Consistent inbound leads",
+        "Proof of ops excellence"
+      ]
+    }
+  },
+  "operations": {
+    "owner": "Sky Patel",
+    "talent_manager": "Taylor Chen",
+    "strategist": "Maya Alvarez",
+    "editor_pod": ["Jordan", "Sam"],
+    "additional_team": [
+      {"role": "Copywriter", "name": "Zara Moore", "contact": "zara@opsplaybook.studio"},
+      {"role": "Automation Specialist", "name": "Omar Singh"}
+    ],
+    "timezone": "America/New_York",
+    "automation_notes": "Bubble workflows push briefs to editors; Zapier updates CRM.",
+    "integrations": ["Bubble", "Zapier", "Notion"]
+  },
+  "community": {
+    "sentiment": "Supportive, curious",
+    "response_sla_hours": 12,
+    "pending_replies": 9,
+    "highlighted_threads": [
+      "https://youtube.com/comment/ttt-2024-05-18",
+      "https://youtube.com/comment/ttt-2024-05-09"
+    ],
+    "macros": [
+      "Appreciate you sharing the workflow!",
+      "Book a discovery call for custom builds."
+    ],
+    "notes": "Requests for Zapier templates increasing."
+  },
+  "workflows": [
+    {
+      "title": "Publish AI onboarding deep dive",
+      "status": "in_progress",
+      "due_date": "2024-06-03",
+      "owner": "Jordan",
+      "notes": "Waiting on testimonial screenshot"
+    },
+    {
+      "title": "Prep June partner webinar",
+      "status": "planned",
+      "due_date": "2024-06-14",
+      "owner": "Taylor Chen",
+      "notes": "Need outline approval"
+    }
+  ],
+  "experiments": [
+    {
+      "name": "Shorts CTA Test",
+      "hypothesis": "Calendar link overlay increases calls",
+      "metric": "Calendly bookings",
+      "status": "running",
+      "latest_result": "+12% bookings over control",
+      "next_check_in": "2024-06-08"
+    }
+  ],
+  "asset_library": [
+    {
+      "asset_type": "SOP",
+      "title": "Discovery call prep checklist",
+      "url": "https://drive.google.com/file/d/opsplaybook-sop",
+      "notes": "Use before weekly calls"
+    },
+    {
+      "asset_type": "Deck",
+      "title": "AI service pitch deck",
+      "url": "https://drive.google.com/file/d/opsplaybook-deck",
+      "notes": "Reference for webinar content"
+    }
+  ]
+}

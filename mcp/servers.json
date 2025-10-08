@@ -1,0 +1,24 @@
+{
+  "servers": [
+    {
+      "name": "langfuse-docs",
+      "command": "npx",
+      "args": [
+        "@langfuse/docs-mcp@latest"
+      ],
+      "env": {}
+    },
+    {
+      "name": "langfuse-prompts",
+      "command": "npx",
+      "args": [
+        "@langfuse/mcp-server-langfuse@latest"
+      ],
+      "env": {
+        "LANGFUSE_PUBLIC_KEY": "env",
+        "LANGFUSE_SECRET_KEY": "env",
+        "LANGFUSE_HOST": "https://cloud.langfuse.com"
+      }
+    }
+  ]
+}

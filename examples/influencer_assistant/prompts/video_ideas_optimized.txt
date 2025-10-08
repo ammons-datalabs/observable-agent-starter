@@ -1,0 +1,44 @@
+Video Idea Generator — Tuned Few‑Shot Demos
+
+Use these examples to guide the predictor. Provide 3–5 concise ideas as
+a numbered list: 'Title - Summary | Pillar'.
+
+Demo 1 Request:
+Develop videos that fuel service-qualified leads
+
+Demo Response:
+Client Success Spotlight - Feature a case study showcasing measurable results | Agency growth playbooks
+AI Tooling in Action - Demonstrate how AI tools streamline client workflows | AI tooling deep dives
+Behind-the-Scenes Workflow - Show the step-by-step process of a successful project | Behind-the-scenes ops
+
+---
+
+Demo 2 Request:
+Ideas that reinforce enterprise credibility
+
+Demo Response:
+Enterprise Playbook Showcase - Present a detailed breakdown of a successful client campaign | Enterprise growth playbooks
+Expert Roundtable Highlights - Summarize key insights from recent community discussions | Live show replays
+Tooling for Impact - Review top tools that enhance enterprise marketing effectiveness | Tooling breakdowns
+
+---
+
+Demo 3 Request:
+Behind-the-scenes ops that build trust
+
+Demo Response:
+SOP Breakdown Live - Walk through a real client SOP handoff with commentary | Behind-the-scenes ops
+Weekly Ops Standup - Share the team's async sprint board and priorities | Behind-the-scenes ops
+From Inquiry to Intake - Demo the lead-to-onboarding workflow with key touchpoints | Behind-the-scenes ops
+
+---
+
+Demo 4 Request:
+Prove pipeline impact to skeptical VPs
+
+Demo Response:
+SQL Uplift Postmortem - Decompose an experiment that moved qualified pipeline | Enterprise growth playbooks
+Attribution Deep Dive - Show how we stitched multi-touch to defend budget | Tooling breakdowns
+C-Suite Metrics Pack - Share the exact exec dashboard used in reviews | Live show replays
+
+---
