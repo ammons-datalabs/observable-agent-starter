@@ -1,7 +1,7 @@
-"""FastAPI server demonstrating end-to-end triage agent integration.
+"""FastAPI server demonstrating end-to-end agent integration.
 
 Run with: uvicorn examples.fastapi_server:app --reload
-Test with: curl -X POST http://localhost:8000/triage -H "Content-Type: application/json" -d '{"ticket": "My invoice has extra charges"}'
+Test with: curl -X POST http://localhost:8000/route -H "Content-Type: application/json" -d '{"request": "My invoice has extra charges"}'
 """
 
 from __future__ import annotations
@@ -12,38 +12,38 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from pydantic import BaseModel
 
-from agents.triage.agent import TriageAgent
+from agents.triage.agent import ExampleAgent
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # Global agent instance
-agent: TriageAgent | None = None
+agent: ExampleAgent | None = None
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Initialize agent on startup."""
     global agent
-    logger.info("Initializing TriageAgent...")
-    agent = TriageAgent()
+    logger.info("Initializing ExampleAgent...")
+    agent = ExampleAgent()
     yield
     logger.info("Shutting down...")
 
 
 app = FastAPI(
-    title="Observable Agent Starter - Triage API",
-    description="Production-ready FastAPI server with DSPy triage agent, Langfuse tracing, and DeepEval quality metrics",
+    title="Observable Agent Starter - Example API",
+    description="Production-ready FastAPI server with DSPy agent, Langfuse tracing, and DeepEval quality metrics",
     version="0.1.0",
     lifespan=lifespan,
 )
 
 
-class TriageRequest(BaseModel):
-    ticket: str
+class RouteRequest(BaseModel):
+    request: str
 
 
-class TriageResponse(BaseModel):
+class RouteResponse(BaseModel):
     route: str
     explanation: str
 
@@ -58,12 +58,12 @@ async def root():
     }
 
 
-@app.post("/triage", response_model=TriageResponse)
-async def triage(request: TriageRequest) -> TriageResponse:
+@app.post("/route", response_model=RouteResponse)
+async def route_request(req: RouteRequest) -> RouteResponse:
     """
-    Route a support ticket to the appropriate team.
+    Route an incoming request to the appropriate handler.
 
-    - **ticket**: The user's support ticket text
+    - **request**: The user's request text
 
     Returns:
     - **route**: One of {billing, tech, sales}
@@ -74,8 +74,8 @@ async def triage(request: TriageRequest) -> TriageResponse:
     if agent is None:
         raise RuntimeError("Agent not initialized")
 
-    result = agent.forward(request.ticket)
-    return TriageResponse(**result)
+    result = agent.forward(req.request)
+    return RouteResponse(**result)
 
 
 @app.get("/health")

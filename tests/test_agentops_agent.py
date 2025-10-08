@@ -1,4 +1,4 @@
-"""Unit tests for the Observable Agent Starter triage agent."""
+"""Unit tests for the Observable Agent Starter example agent."""
 
 from __future__ import annotations
 
@@ -7,7 +7,7 @@ from typing import Any
 import dspy
 import pytest
 
-from agents.triage.agent import TriageAgent, ALLOWED_ROUTES
+from agents.triage.agent import ExampleAgent, ALLOWED_ROUTES
 from agents.triage import config
 
 
@@ -35,7 +35,7 @@ def reset_dspy_settings():
 
 
 def test_policy_fallback_triggers_on_invalid_route():
-    agent = TriageAgent()
+    agent = ExampleAgent()
     agent.route = DummyPredictor("escalate")  # type: ignore[assignment]
 
     result = agent.forward("Need pricing clarification")

@@ -5,11 +5,11 @@ from deepeval.metrics import AnswerRelevancyMetric
 from deepeval import assert_test
 from deepeval.test_case import LLMTestCase
 
-from agents.triage.agent import TriageAgent
+from agents.triage.agent import ExampleAgent
 
 
-def test_policy_fallback_handles_billing_ticket():
-    agent = TriageAgent()
+def test_policy_fallback_handles_billing_request():
+    agent = ExampleAgent()
     out = agent.forward("The invoice shows an extra fee")
     assert out["route"] == "billing"
 
@@ -19,7 +19,7 @@ def test_policy_fallback_handles_billing_ticket():
     reason="AnswerRelevancyMetric requires an OpenAI API key",
 )
 def test_basic_relevance_with_deepeval():
-    agent = TriageAgent()
+    agent = ExampleAgent()
     out = agent.forward("The invoice shows an extra fee")
     metric = AnswerRelevancyMetric()
     test_case = LLMTestCase(

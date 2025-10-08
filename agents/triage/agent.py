@@ -11,21 +11,21 @@ from .policy import neutral_policy
 LOGGER = logging.getLogger(__name__)
 ALLOWED_ROUTES = {"billing", "tech", "sales"}
 
-class TriageSignature(dspy.Signature):
-    """Route an incoming ticket neutrally to one of: {billing, tech, sales}."""
+class RouteRequestSignature(dspy.Signature):
+    """Route an incoming request to one of: {billing, tech, sales}."""
 
-    ticket = dspy.InputField(desc="User-submitted support ticket text")
+    request = dspy.InputField(desc="User-submitted request text")
     route = dspy.OutputField(desc="One of {billing, tech, sales}")
     rationale = dspy.OutputField(desc="Very short reasoning for the decision")
 
-class TriageAgent(dspy.Module):
+class ExampleAgent(dspy.Module):
     def __init__(self):
         super().__init__()
         # Ensure LM is configured before constructing DSPy modules that may inspect settings
         configure_lm_from_env()
-        self.route = dspy.ChainOfThought(TriageSignature)
+        self.route = dspy.ChainOfThought(RouteRequestSignature)
 
-    def forward(self, ticket: str) -> Dict[str, Any]:
+    def forward(self, request: str) -> Dict[str, Any]:
         configure_lm_from_env()
 
         # Be tolerant of different dspy versions: check both getter and attribute
@@ -34,13 +34,13 @@ class TriageAgent(dspy.Module):
             lm_obj = getattr(dspy.settings, "lm", None)
 
         if lm_obj is None:
-            route = neutral_policy(ticket)
+            route = neutral_policy(request)
             return {
                 "route": route,
                 "explanation": "Policy fallback used because no LM is configured.",
             }
 
-        pred = self.route(ticket=ticket)
+        pred = self.route(request=request)
 
         raw_route = getattr(pred, "route", "")
         if isinstance(raw_route, str):
@@ -50,15 +50,15 @@ class TriageAgent(dspy.Module):
         fallback_reason: str | None = None
         if raw_route not in ALLOWED_ROUTES:
             LOGGER.warning("Invalid route '%s' returned by LM; applying neutral policy", raw_route)
-            raw_route = neutral_policy(ticket)
+            raw_route = neutral_policy(request)
             fallback_reason = "invalid_route"
             explanation = "Policy fallback applied because LM returned an unsupported route."
 
         result = {"route": raw_route, "explanation": explanation}
 
         log_langfuse_generation(
-            name="triage-agent",
-            input_text=ticket,
+            name="example-agent",
+            input_text=request,
             output_payload=result,
             metadata={"fallback_reason": fallback_reason} if fallback_reason else None,
         )
@@ -67,7 +67,7 @@ class TriageAgent(dspy.Module):
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
-    triager = TriageAgent()
+    agent = ExampleAgent()
     example = "The invoice shows an extra fee on my account."
     # Prefer calling the module directly to avoid DSPy warnings about .forward
-    print(triager(ticket=example))
+    print(agent(request=example))

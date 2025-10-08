@@ -20,7 +20,7 @@ Small engineering teams need agents that work reliably from day one. This starte
 
 ### CLI Agent
 ```bash
-# Run the triage agent directly
+# Run the example agent directly
 python -m agents.triage
 # {"route": "billing", "explanation": "Policy fallback used..."}
 ```
@@ -30,10 +30,10 @@ python -m agents.triage
 # Start the server
 uvicorn examples.fastapi_server:app --reload
 
-# Test the /triage endpoint
-curl -X POST http://localhost:8000/triage \
+# Test the /route endpoint
+curl -X POST http://localhost:8000/route \
   -H "Content-Type: application/json" \
-  -d '{"ticket": "My invoice has extra charges"}'
+  -d '{"request": "My invoice has extra charges"}'
 
 # Response: {"route": "billing", "explanation": "..."}
 ```
@@ -95,14 +95,14 @@ it falls back to a neutral policy and still returns a valid route.
 ## Structure
 ```
 .
-├─ agents/triage/          # Core triage agent (DSPy-based)
-│  ├─ agent.py            # TriageAgent (routing logic)
+├─ agents/triage/          # Example agent (DSPy-based routing)
+│  ├─ agent.py            # ExampleAgent (swap with your logic)
 │  ├─ config.py           # LM + Langfuse setup
 │  └─ policy.py           # Fallback routing policy
 ├─ examples/
 │  ├─ fastapi_server.py   # FastAPI production server
 │  └─ influencer_assistant/  # Richer DSPy example
-├─ tests/                 # Unit tests (8 passing)
+├─ tests/                 # Unit tests (24 passing)
 ├─ evals/deepeval/        # DeepEval quality metrics
 ├─ prompts/               # Jinja2 prompt templates
 ├─ mcp/servers.json       # MCP server configs
@@ -113,10 +113,11 @@ it falls back to a neutral policy and still returns a valid route.
 ```
 
 ## Notes
-- Swap DSPy for LangGraph easily; the starter isolates logic in `agents/triage/agent.py`.
+- **Swap the example agent** with your own logic—everything is isolated in `agents/triage/agent.py` (`ExampleAgent` class).
+- Swap DSPy for LangGraph easily; the starter keeps framework logic contained.
 - `mcp/servers.json` expects the Langfuse MCP servers or your own custom ones.
 - Keep prompts in `prompts/` or switch to managed prompts via MCP.
-- The triage agent auto-configures DSPy from `OPENAI_*` env vars, falls back to
+- The example agent auto-configures DSPy from `OPENAI_*` env vars, falls back to
   policy routing if the LM misbehaves, and logs all interactions to Langfuse when creds exist.
 - FastAPI server (`examples/fastapi_server.py`) provides production-ready HTTP endpoints with automatic tracing.
 

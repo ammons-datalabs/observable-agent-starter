@@ -1,6 +1,6 @@
-"""Observable Agent Starter triage package exports."""
+"""Observable Agent Starter example package exports."""
 
-from .agent import TriageAgent
+from .agent import ExampleAgent
 from .config import (
     configure_langfuse_from_env,
     configure_lm_from_env,
@@ -8,7 +8,7 @@ from .config import (
 )
 
 __all__ = [
-    "TriageAgent",
+    "ExampleAgent",
     "configure_lm_from_env",
     "configure_langfuse_from_env",
     "log_langfuse_generation",
