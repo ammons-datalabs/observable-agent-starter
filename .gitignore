@@ -42,6 +42,12 @@ coverage.xml
 *.key
 *.pem
 
+# Archives (may contain sensitive files)
+*.zip
+*.tar.gz
+*.tar
+*.rar
+
 # IDE and editor files
 .vscode/
 .idea/
