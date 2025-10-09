@@ -1,6 +1,6 @@
 # Observable Agent Starter
 
-[![Tests](https://github.com/ammons-datalabs/observable-agent-starter/actions/workflows/ci.yml/badge.svg)](https://github.com/ammons-datalabs/observable-agent-starter/actions/workflows/ci.yml)
+[![Tests](https://github.com/ammons-datalabs/observable-agent-starter/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/ammons-datalabs/observable-agent-starter/actions/workflows/ci.yml)
 
 Production-ready Python agent starter with built-in observability, evals, and CI. Pre-wired with:
 
