@@ -1,11 +1,11 @@
 import logging
 
-from .agent import AgentOpsDemo
+from .agent import ExampleAgent
 
 
 def main() -> None:
     logging.basicConfig(level=logging.INFO)
-    triager = AgentOpsDemo()
+    triager = ExampleAgent()
     example = "The invoice shows an extra fee on my account."
     # Prefer calling the module directly instead of .forward(...)
     result = triager(ticket=example)

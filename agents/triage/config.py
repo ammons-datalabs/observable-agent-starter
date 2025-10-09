@@ -4,18 +4,21 @@ from __future__ import annotations
 
 import logging
 import os
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, TYPE_CHECKING
 from pathlib import Path
 
 import dspy
 
-try:  # Optional dependency at runtime if Langfuse creds are provided
+if TYPE_CHECKING:
     from langfuse import Langfuse
-except Exception:  # pragma: no cover - langfuse import is optional for tests
-    Langfuse = None  # type: ignore
+else:
+    try:  # Optional dependency at runtime if Langfuse creds are provided
+        from langfuse import Langfuse
+    except Exception:  # pragma: no cover - langfuse import is optional for tests
+        Langfuse = None  # type: ignore
 
 LOGGER = logging.getLogger(__name__)
-_LANGFUSE_CLIENT: Optional["Langfuse"] = None
+_LANGFUSE_CLIENT: Optional[Langfuse] = None
 
 
 def _load_dotenv_into_env() -> None:
@@ -121,7 +124,7 @@ def configure_lm_from_env() -> bool:
     return False
 
 
-def configure_langfuse_from_env() -> Optional["Langfuse"]:
+def configure_langfuse_from_env() -> Optional[Langfuse]:
     """Initialise a Langfuse client if credentials are present."""
 
     global _LANGFUSE_CLIENT

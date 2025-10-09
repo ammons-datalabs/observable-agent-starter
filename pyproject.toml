@@ -59,6 +59,9 @@ examples = [
 [tool.pyright]
 venvPath = "."
 venv = ".venv"
+exclude = [
+  "examples/influencer_assistant/dashboard"
+]
 
 [tool.ruff]
 line-length = 100
