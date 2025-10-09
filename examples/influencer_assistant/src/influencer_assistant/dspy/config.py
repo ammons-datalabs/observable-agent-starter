@@ -7,7 +7,7 @@ from typing import Sequence
 
 import dspy
 
-from agents.triage.config import (
+from agents.example.config import (
     configure_lm_from_env as _base_configure_lm,
     log_langfuse_generation,
 )
