@@ -38,7 +38,7 @@ curl -X POST http://localhost:8000/route \
 # Response: {"route": "billing", "explanation": "..."}
 ```
 
-![Demo screencast](https://via.placeholder.com/800x400?text=Add+your+demo+gif+here)
+![FastAPI Demo](docs/FastAPIDemo.png)
 
 ## Quick start
 
