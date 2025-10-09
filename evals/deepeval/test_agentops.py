@@ -5,7 +5,7 @@ from deepeval.metrics import AnswerRelevancyMetric
 from deepeval import assert_test
 from deepeval.test_case import LLMTestCase
 
-from agents.triage.agent import ExampleAgent
+from agents.example.agent import ExampleAgent
 
 
 def test_policy_fallback_handles_billing_request():

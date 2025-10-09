@@ -33,8 +33,8 @@ echo -e "${YELLOW}→ Demo 1: CLI Agent with Fallback Policy${NC}"
 echo ""
 sleep 1
 
-print_command "python -m agents.triage"
-python -m agents.triage
+print_command "python -m agents.example"
+python -m agents.example
 pause
 
 # Demo 2: CLI with different inputs
@@ -45,7 +45,7 @@ sleep 1
 
 # Create a temporary Python script for multiple examples
 cat > /tmp/demo_examples.py << 'PYTHON'
-from agents.triage.agent import ExampleAgent
+from agents.example.agent import ExampleAgent
 
 agent = ExampleAgent()
 

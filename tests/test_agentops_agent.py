@@ -7,8 +7,8 @@ from typing import Any
 import dspy
 import pytest
 
-from agents.triage.agent import ExampleAgent, ALLOWED_ROUTES
-from agents.triage import config
+from agents.example.agent import ExampleAgent, ALLOWED_ROUTES
+from agents.example import config
 
 
 class DummyPrediction:

@@ -12,7 +12,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from pydantic import BaseModel
 
-from agents.triage.agent import ExampleAgent
+from agents.example.agent import ExampleAgent
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)

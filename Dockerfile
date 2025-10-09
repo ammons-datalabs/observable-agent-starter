@@ -11,4 +11,4 @@ COPY . .
 RUN uv pip install --system -e .
 
 # Default command runs the package entrypoint
-CMD ["python", "-m", "agents.triage"]
+CMD ["python", "-m", "agents.example"]

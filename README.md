@@ -21,7 +21,7 @@ Small engineering teams need agents that work reliably from day one. This starte
 ### CLI Agent
 ```bash
 # Run the example agent directly
-python -m agents.triage
+python -m agents.example
 # {"route": "billing", "explanation": "Policy fallback used..."}
 ```
 
@@ -75,7 +75,7 @@ docker build -t observable-agent-starter .
 docker run --rm -it --env-file .env observable-agent-starter
 ```
 
-The container runs `python -m agents.triage` by default. If `OPENAI_*` and `LANGFUSE_*` are not set,
+The container runs `python -m agents.example` by default. If `OPENAI_*` and `LANGFUSE_*` are not set,
 it falls back to a neutral policy and still returns a valid route.
 
 ## Using with GitHub + Codespaces (or any cloud IDE)
@@ -95,7 +95,7 @@ it falls back to a neutral policy and still returns a valid route.
 ## Structure
 ```
 .
-├─ agents/triage/          # Example agent (DSPy-based routing)
+├─ agents/example/         # Example agent (DSPy-based routing)
 │  ├─ agent.py            # ExampleAgent (swap with your logic)
 │  ├─ config.py           # LM + Langfuse setup
 │  └─ policy.py           # Fallback routing policy
@@ -113,7 +113,7 @@ it falls back to a neutral policy and still returns a valid route.
 ```
 
 ## Notes
-- **Swap the example agent** with your own logic—everything is isolated in `agents/triage/agent.py` (`ExampleAgent` class).
+- **Swap the example agent** with your own logic—everything is isolated in `agents/example/agent.py` (`ExampleAgent` class).
 - Swap DSPy for LangGraph easily; the starter keeps framework logic contained.
 - `mcp/servers.json` expects the Langfuse MCP servers or your own custom ones.
 - Keep prompts in `prompts/` or switch to managed prompts via MCP.

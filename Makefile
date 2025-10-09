@@ -49,4 +49,4 @@ tune-influencer:
 	$(PYTHON) examples/influencer_assistant/training/tune_video_ideas.py $(ARGS)
 
 run:
-	$(PYTHON) -m agents.agentops
+	$(PYTHON) -m agents.example
