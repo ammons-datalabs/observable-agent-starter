@@ -18,12 +18,12 @@ SRC_DIR = EXAMPLE_ROOT / "src"
 if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
 
-from influencer_assistant.dspy.video_ideas import (
+from influencer_assistant.dspy.video_ideas import (  # noqa: E402
     VideoIdeaSignature,
     VideoIdeasStructuredSignature,
 )
-from influencer_assistant.dspy.config import configure_lm_from_env
-from influencer_assistant.training.dataset import build_training_dataset
+from influencer_assistant.dspy.config import configure_lm_from_env  # noqa: E402
+from influencer_assistant.training.dataset import build_training_dataset  # noqa: E402
 
 try:
     from dspy.teleprompt import BootstrapFewShotWithRandomSearch
@@ -77,7 +77,7 @@ def _lines_from_obj(obj: object) -> List[str]:
 
     # Fallback to free-form response string
     text = str(getattr(obj, "response", "") or "")
-    lines = [l.strip() for l in text.splitlines() if l.strip()]
+    lines = [line.strip() for line in text.splitlines() if line.strip()]
     return lines[:3]
 
 
@@ -107,8 +107,8 @@ def similarity_metric(
     def token_set(s: str) -> set[str]:
         return {t for t in re.split(r"[^a-z0-9]+", s) if t}
 
-    expected_lines = [normalize_line(l) for l in _lines_from_obj(example)]
-    predicted_lines = [normalize_line(l) for l in _lines_from_obj(prediction)]
+    expected_lines = [normalize_line(line) for line in _lines_from_obj(example)]
+    predicted_lines = [normalize_line(line) for line in _lines_from_obj(prediction)]
 
     if not expected_lines:
         return 0.0
@@ -120,7 +120,6 @@ def similarity_metric(
     for exp in expected_lines:
         exp_tokens = token_set(exp)
         best = 0.0
-        best_j = 0.0
         best_idx = -1
         for i, pred in enumerate(predicted_lines):
             if i in used:
@@ -135,7 +134,6 @@ def similarity_metric(
             score = max(j, r)
             if score > best:
                 best = score
-                best_j = j
                 best_idx = i
         # Count as match if reasonably similar
         if best >= 0.6:
@@ -224,24 +222,24 @@ def make_semantic_metric(threshold: float = 0.65):
     def metric(
         example: dspy.Example, prediction: dspy.Prediction, trace: object | None = None
     ) -> float:
-        exp_lines_raw = [l for l in _lines_from_obj(example) if l.strip()]
-        pred_lines_raw = [l for l in _lines_from_obj(prediction) if l.strip()]
-        exp_lines = [_normalize_for_semantic(l) for l in exp_lines_raw]
-        pred_lines = [_normalize_for_semantic(l) for l in pred_lines_raw]
+        exp_lines_raw = [line for line in _lines_from_obj(example) if line.strip()]
+        pred_lines_raw = [line for line in _lines_from_obj(prediction) if line.strip()]
+        exp_lines = [_normalize_for_semantic(line) for line in exp_lines_raw]
+        pred_lines = [_normalize_for_semantic(line) for line in pred_lines_raw]
         if not exp_lines or not pred_lines:
             return 0.0
         # Batch-embed all unique lines not yet in cache for efficiency
         unique: List[str] = []
         seen: Set[str] = set()
-        for l in exp_lines + pred_lines:
-            if l not in seen and l not in embedder._cache:
-                seen.add(l)
-                unique.append(l)
+        for line in exp_lines + pred_lines:
+            if line not in seen and line not in embedder._cache:
+                seen.add(line)
+                unique.append(line)
         if unique:
             vecs = embedder.embed(unique)
             if vecs and len(vecs) == len(unique):
-                for l, v in zip(unique, vecs):
-                    embedder._cache[l] = v
+                for line, v in zip(unique, vecs):
+                    embedder._cache[line] = v
             else:
                 # Embedding failed; fall back to fuzzy metric to avoid zeroing
                 try:
