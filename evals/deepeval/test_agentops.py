@@ -6,6 +6,10 @@ from deepeval import assert_test
 from deepeval.test_case import LLMTestCase
 
 from agents.example.agent import ExampleAgent
+from agents.example.config import configure_lm_from_env
+
+# Load .env early so skipif conditions can check for API keys
+configure_lm_from_env()
 
 
 def test_policy_fallback_handles_billing_request():
