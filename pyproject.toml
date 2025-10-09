@@ -60,7 +60,7 @@ examples = [
 venvPath = "."
 venv = ".venv"
 exclude = [
-  "examples/influencer_assistant/dashboard"
+  "examples/influencer_assistant"
 ]
 
 [tool.ruff]
