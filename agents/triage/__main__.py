@@ -8,7 +8,7 @@ def main() -> None:
     triager = ExampleAgent()
     example = "The invoice shows an extra fee on my account."
     # Prefer calling the module directly instead of .forward(...)
-    result = triager(ticket=example)
+    result = triager(request=example)
     print(result)
 
 
