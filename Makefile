@@ -18,7 +18,7 @@ type:
 	$(VENV)/bin/pyright
 
 test:
-	$(PYTHON) -m pytest -q
+	$(PYTHON) -m pytest -v
 
 test-examples:
 	@if ! $(PYTHON) -c "import pydantic" >/dev/null 2>&1; then \
@@ -32,7 +32,7 @@ evals:
 		echo "DeepEval CLI not installed in $(VENV). Run 'make dev' first."; \
 		exit 1; \
 	fi
-	@echo "DeepEval CLI commands vary by use-case. Try:\n  $(VENV)/bin/deepeval test --help"
+	$(PYTHON) -m pytest evals/deepeval/ -v
 
 demo-influencer:
 	@if [ ! -x "$(VENV)/bin/streamlit" ]; then \

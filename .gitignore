@@ -35,6 +35,9 @@ htmlcov/
 nosetests.xml
 coverage.xml
 
+# Linting and formatting
+.ruff_cache/
+
 # Environment variables and secrets
 .env
 .env.local
@@ -51,6 +54,7 @@ coverage.xml
 # IDE and editor files
 .vscode/
 .idea/
+.claude/
 *.swp
 *.swo
 *~
@@ -68,3 +72,7 @@ Thumbs.db
 .streamlit/
 logs/
 *.log
+
+# Local demo/test scripts
+demo.sh
+test_fastapi.sh
