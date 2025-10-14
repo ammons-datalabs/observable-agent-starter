@@ -131,11 +131,11 @@ Use `make evals` for DeepEval CLI guidance once you have credentials configured.
 
 ## Examples
 
-- `examples/influencer_assistant/` includes a richer DSPy example modelling a creator portfolio that generates content ideas and comes with pytest coverage.  
+- `examples/influencer_assistant/` includes a richer DSPy example modelling a creator portfolio that generates content ideas and comes with pytest coverage.
   Install its dependencies with:
   ```bash
-  pip install -e '.[examples]'
-  make dev
+  make dev  # First ensure .venv exists
+  .venv/bin/pip install -e '.[examples]'
   ```
   Then run:
   ```bash

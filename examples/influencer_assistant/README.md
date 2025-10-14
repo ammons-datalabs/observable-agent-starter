@@ -12,16 +12,18 @@ The example is designed to live under `examples/influencer_assistant/` within th
 Observable Agent Starter repository. Install the extra dependencies and run its tests with:
 
 ```bash
-make dev
-pip install -e '.[examples]'
+make dev                        # Creates .venv and installs core deps
+.venv/bin/pip install -e '.[examples]'  # Install example extras into .venv
 make test-examples
 ```
+
+> **Note**: If using a different virtual environment (e.g., pyenv), either activate it before running pip, or override the make variable: `make VENV=/path/to/your/env test-examples`
 
 ## Dashboard
 Run the optional Streamlit dashboard to explore the portfolio data and generate ideas:
 
 ```bash
-pip install -e '.[examples]'
+.venv/bin/pip install -e '.[examples]'  # If not already installed
 make demo-influencer
 ```
 
@@ -36,7 +38,7 @@ same Langfuse project used by the core Observable Agent Starter (observation nam
 Run DSPy's teleprompting utilities to refine the idea generator instructions:
 
 ```bash
-pip install -e '.[examples]'
+.venv/bin/pip install -e '.[examples]'  # If not already installed
 make tune-influencer ARGS="--num-candidates 6"
 ```
 
