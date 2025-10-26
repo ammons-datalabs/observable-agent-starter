@@ -70,10 +70,17 @@ Demonstrates:
 - Git integration + PR workflow
 - Operational quality gates (lint, tests, type-check)
 
+**Try the demo:**
 ```bash
 cd examples/coding_agent
 pip install -e .
 
+# Run on the included sample project
+adl-agent "Add a multiply function with docstring" \
+  --repo demo/sample_project \
+  --allow "*.py"
+
+# Or use on your own repo
 adl-agent "Add docstrings to public functions" \
   --repo /path/to/your/repo \
   --allow "src/**/*.py"
