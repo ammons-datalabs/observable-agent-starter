@@ -75,6 +75,9 @@ Demonstrates:
 cd examples/coding_agent
 pip install -e .
 
+# Setup demo repo (first time only)
+cd demo && ./setup_demo.sh && cd ..
+
 # Run on the included sample project
 adl-agent "Add a multiply function with docstring" \
   --repo demo/sample_project \

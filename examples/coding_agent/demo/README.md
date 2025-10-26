@@ -7,6 +7,11 @@ Quick demonstration of the coding agent in action.
 ```bash
 # From the coding_agent directory
 pip install -e .
+
+# Initialize the demo repository (first time only)
+cd demo
+./setup_demo.sh
+cd ..
 ```
 
 ## Run the Demo
