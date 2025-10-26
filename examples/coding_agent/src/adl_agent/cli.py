@@ -9,16 +9,46 @@ from adl_agent.harness import make_patch_and_test, run_command
 from adl_agent.agent import CodeAgent
 import dspy
 
+__version__ = "0.1.0"
+
 
 def setup_dspy():
     """Configure DSPy with the appropriate LLM."""
     model = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
 
-    if not os.getenv("OPENAI_API_KEY"):
-        print("⚠️  Warning: OPENAI_API_KEY not set. Agent may fail.")
+    # Check for appropriate API key based on model
+    if model.startswith("anthropic/"):
+        if not os.getenv("ANTHROPIC_API_KEY"):
+            print("❌ Error: ANTHROPIC_API_KEY not set but required for Anthropic models")
+            print("   Set it in your .env file or export ANTHROPIC_API_KEY=your-key")
+            sys.exit(1)
+    elif model.startswith("openai/") or model.startswith("gpt-"):
+        if not os.getenv("OPENAI_API_KEY"):
+            print("❌ Error: OPENAI_API_KEY not set but required for OpenAI models")
+            print("   Set it in your .env file or export OPENAI_API_KEY=your-key")
+            sys.exit(1)
+    else:
+        # Generic check - at least one should be set
+        if not os.getenv("OPENAI_API_KEY") and not os.getenv("ANTHROPIC_API_KEY"):
+            print("⚠️  Warning: No API keys found. Agent may fail.")
+            print("   Set OPENAI_API_KEY or ANTHROPIC_API_KEY in your .env file")
+
+    # Check for Langfuse credentials (optional but recommended)
+    langfuse_keys = ["LANGFUSE_PUBLIC_KEY", "LANGFUSE_SECRET_KEY", "LANGFUSE_HOST"]
+    langfuse_configured = all(os.getenv(key) for key in langfuse_keys)
+
+    if not langfuse_configured:
+        print("ℹ️  Note: Langfuse tracing not configured (optional)")
+        print("   Set LANGFUSE_PUBLIC_KEY, LANGFUSE_SECRET_KEY, LANGFUSE_HOST for observability")
+        print()
 
     lm = dspy.LM(model)
     dspy.configure(lm=lm)
+
+    print(f"🧠 Model: {model}")
+    if langfuse_configured:
+        print(f"📊 Tracing: Enabled (Langfuse)")
+    print()
 
 
 def main():
@@ -26,8 +56,8 @@ def main():
         "adl-agent",
         description="Autonomous coding agent with DSPy + Langfuse"
     )
-    parser.add_argument("task", help="Engineering task description")
-    parser.add_argument("--repo", required=True, help="Path to target repository")
+    parser.add_argument("task", nargs="?", help="Engineering task description")
+    parser.add_argument("--repo", help="Path to target repository")
     parser.add_argument(
         "--allow",
         nargs="+",
@@ -37,7 +67,14 @@ def main():
     parser.add_argument("--branch-prefix", default="agent", help="Branch name prefix")
     parser.add_argument("--dry-run", action="store_true", help="Generate patch but don't apply")
     parser.add_argument("--open-pr", action="store_true", help="Open PR (requires gh CLI)")
+    parser.add_argument("--version", action="version", version=f"adl-agent {__version__}")
     args = parser.parse_args()
+
+    # Check required arguments
+    if not args.task:
+        parser.error("task is required")
+    if not args.repo:
+        parser.error("--repo is required")
 
     repo = pathlib.Path(args.repo).resolve()
 
@@ -48,14 +85,36 @@ def main():
     # Setup DSPy
     setup_dspy()
 
-    # Create branch
-    branch = f"{args.branch_prefix}/{args.task.replace(' ', '-').lower()[:50]}"
+    # Save current branch
+    try:
+        current_branch = run_command(
+            ["git", "rev-parse", "--abbrev-ref", "HEAD"],
+            cwd=str(repo)
+        ).stdout.strip()
+    except subprocess.CalledProcessError:
+        current_branch = "main"
+
+    # Create branch name
+    import re
+    safe_task = re.sub(r'[^\w\s-]', '', args.task)
+    safe_task = re.sub(r'[-\s]+', '-', safe_task)
+    branch = f"{args.branch_prefix}/{safe_task.lower()[:50]}"
+
     print(f"🌿 Creating branch: {branch}")
 
+    # Try to create branch, handle if it exists
     try:
         run_command(["git", "checkout", "-b", branch], cwd=str(repo))
-    except subprocess.CalledProcessError as e:
-        print(f"⚠️  Branch may already exist or git error: {e}")
+    except subprocess.CalledProcessError:
+        # Branch might exist, try to check it out
+        try:
+            run_command(["git", "checkout", branch], cwd=str(repo))
+            print(f"⚠️  Branch already exists, checked it out")
+        except subprocess.CalledProcessError as e:
+            print(f"❌ Error: Could not create or checkout branch: {e}")
+            print(f"   You may have uncommitted changes. Staying on {current_branch}")
+            # Continue without switching branches
+            branch = current_branch
 
     # Initialize agent
     agent = CodeAgent()

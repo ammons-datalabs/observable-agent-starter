@@ -34,10 +34,16 @@ def extract_files_from_patch(patch: str) -> List[str]:
 
 def validate_patch_files(allowed_patterns: List[str], patch_files: List[str]) -> bool:
     """Validate that all files in patch match allowed patterns."""
-    # Use Path.match() which properly handles ** patterns
-    # ** matches zero or more directories
+    import fnmatch
+
+    # Use fnmatch which handles ** patterns like shells do
+    # This works with both relative patterns (src/**/*.py) and
+    # absolute-style patterns (examples/coding_agent/**/*.py)
     for file_path in patch_files:
-        matched = any(Path(file_path).match(pattern) for pattern in allowed_patterns)
+        matched = any(
+            fnmatch.fnmatch(file_path, pattern) or Path(file_path).match(pattern)
+            for pattern in allowed_patterns
+        )
         if not matched:
             return False
     return True
