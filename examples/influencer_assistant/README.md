@@ -1,5 +1,37 @@
 # Influencer Assistant Example
 
+This example demonstrates extending `observable_agent_starter.BaseAgent` for content ideation with DeepEval quality metrics.
+
+## Extending BaseAgent
+
+```python
+from observable_agent_starter import BaseAgent
+import dspy
+
+class VideoIdeaGenerator(dspy.Module, BaseAgent):
+    """Generate video ideas extending BaseAgent."""
+
+    def __init__(self):
+        dspy.Module.__init__(self)
+        BaseAgent.__init__(self, observation_name="influencer-video-ideas")
+
+        # Your agent setup
+        self.predict = dspy.Predict(VideoIdeaSignature)
+```
+
+**What BaseAgent provides:**
+- LM configuration from environment variables
+- Langfuse tracing helpers (`self.log_generation()`)
+- Logging infrastructure
+
+**What this example adds:**
+- DSPy signatures for idea generation
+- Profile context rendering
+- Fallback logic for missing LM
+- **DeepEval quality metrics** (relevancy, faithfulness, pillar adherence)
+
+## What's Included
+
 This example demonstrates how to combine DSPy reasoning and structured data modeling
 to support an AI assistant that helps manage creator operations. It includes:
 
@@ -8,16 +40,37 @@ to support an AI assistant that helps manage creator operations. It includes:
 - Synthetic fixtures that mimic real creator portfolios
 - Pytest suites covering the builder, DSPy configuration, and content generator
 
-The example is designed to live under `examples/influencer_assistant/` within the
-Observable Agent Starter repository. Install the extra dependencies and run its tests with:
+## Installation
+
+Install with development dependencies:
 
 ```bash
-make dev                        # Creates .venv and installs core deps
-.venv/bin/pip install -e '.[examples]'  # Install example extras into .venv
-make test-examples
+cd examples/influencer_assistant
+pip install -e '.[dev]'
 ```
 
-> **Note**: If using a different virtual environment (e.g., pyenv), either activate it before running pip, or override the make variable: `make VENV=/path/to/your/env test-examples`
+## Testing
+
+Run unit tests:
+```bash
+pytest tests/ -v
+```
+
+## DeepEval Quality Metrics
+
+This example showcases LLM evaluation with DeepEval:
+
+- **Relevancy**: Ideas match user request
+- **Faithfulness**: Ideas grounded in creator profile
+- **Pillar adherence**: Ideas map to content pillars
+
+Run quality metrics:
+```bash
+export OPENAI_API_KEY=your-key
+pytest evals/ -v
+```
+
+These metrics run in CI and must pass.
 
 ## Dashboard
 Run the optional Streamlit dashboard to explore the portfolio data and generate ideas:

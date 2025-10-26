@@ -2,8 +2,10 @@ name: ci
 on:
   push: { branches: [main] }
   pull_request:
+
 jobs:
-  build:
+  core:
+    name: Core Framework
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -11,11 +13,45 @@ jobs:
         with: { python-version: '3.12' }
       - run: pip install -U pip uv
       - run: uv pip install --system -e '.[dev]'
+
       - name: Ruff
         run: ruff check .
+
       - name: Pyright
         uses: jakebailey/pyright-action@v2
-      - name: Pytest
-        run: pytest -q
-      - name: DeepEval
-        run: python -m deepeval run || true
+
+      - name: Core Tests
+        run: pytest tests/ -v
+
+  coding-agent:
+    name: Coding Agent Example
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.12' }
+      - run: pip install -U pip uv
+      - run: uv pip install --system -e '.[dev]'
+      - run: cd examples/coding_agent && pip install -e .
+
+      - name: Coding Agent Tests
+        run: pytest examples/coding_agent/tests/ -v
+
+  influencer-assistant:
+    name: Influencer Assistant Example (with DeepEval)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: '3.12' }
+      - run: pip install -U pip uv
+      - run: uv pip install --system -e '.[dev,examples]'
+      - run: cd examples/influencer_assistant && pip install -e '.[dev]'
+
+      - name: Influencer Tests
+        run: pytest examples/influencer_assistant/tests/ -v
+
+      - name: DeepEval Quality Metrics
+        run: pytest examples/influencer_assistant/evals/ -v
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}

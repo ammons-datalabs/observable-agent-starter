@@ -8,7 +8,7 @@ import pytest
 
 from influencer_assistant.dspy import VideoIdeaGenerator, render_profile_context
 from influencer_assistant.profile import InfluencerProfile, InfluencerProfileBuilder
-import influencer_assistant.dspy.video_ideas as video_ideas_module
+from observable_agent_starter import BaseAgent
 
 FIXTURE_PATH = Path(__file__).resolve().parent / "fixtures" / "creator_snapshot.json"
 
@@ -23,7 +23,7 @@ def profile() -> InfluencerProfile:
 
 @pytest.fixture(autouse=True)
 def disable_langfuse_logging(monkeypatch):
-    monkeypatch.setattr(video_ideas_module, "log_video_ideas", lambda **_: None)
+    monkeypatch.setattr(BaseAgent, "log_generation", lambda self, **_: None)
 
 
 @pytest.fixture(autouse=True)
@@ -59,14 +59,22 @@ def test_video_idea_generator_parses_dummy_response(profile: InfluencerProfile) 
 
 
 def test_video_idea_generator_fallback_without_lm(monkeypatch, profile: InfluencerProfile) -> None:
+    # Prevent configure_lm_from_env from loading LM - patch at base_agent module level
+    import observable_agent_starter.base_agent as base_agent_module
+    monkeypatch.setattr(base_agent_module, "configure_lm_from_env", lambda: False)
+
+    # Also patch it in video_ideas module
+    import influencer_assistant.dspy.video_ideas as video_ideas_module
+    monkeypatch.setattr(video_ideas_module, "configure_lm_from_env", lambda: False)
+
     dspy.settings.configure(lm=None)
 
     captured: dict[str, list[dict]] = {"calls": []}
 
-    def _capture(**kwargs):
+    def _capture(self, **kwargs):
         captured["calls"].append(kwargs)
 
-    monkeypatch.setattr(video_ideas_module, "log_video_ideas", _capture)
+    monkeypatch.setattr(BaseAgent, "log_generation", _capture)
 
     generator = VideoIdeaGenerator(target_count=2)
     ideas = list(generator(profile, request="Fallback please"))
@@ -74,4 +82,5 @@ def test_video_idea_generator_fallback_without_lm(monkeypatch, profile: Influenc
     assert len(ideas) == 2
     assert all(idea.pillar for idea in ideas)
     assert captured["calls"]
+    # metadata items are passed as **kwargs to log_generation
     assert captured["calls"][0]["fallback_reason"] == "no_lm"

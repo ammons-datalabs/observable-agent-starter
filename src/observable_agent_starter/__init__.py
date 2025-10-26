@@ -1,7 +1,7 @@
-"""Observable Agent Starter - Production-ready Python agent framework.
+"""Observable Agent Starter - DSPy agent framework with observability."""
+__version__ = "0.2.0"
 
-This package provides a starter template for building observable, testable agents
-with DSPy, Langfuse tracing, and FastAPI deployment.
-"""
+from .base_agent import BaseAgent
+from .config import configure_lm_from_env, log_langfuse_generation
 
-__version__ = "0.1.0"
+__all__ = ["BaseAgent", "configure_lm_from_env", "log_langfuse_generation"]

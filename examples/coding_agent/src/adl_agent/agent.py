@@ -1,10 +1,15 @@
-"""DSPy-based coding agent with structured outputs and guardrails."""
+"""DSPy-based coding agent with structured outputs and guardrails.
+
+Demonstrates extending BaseAgent from observable_agent_starter.
+"""
 
 import dspy
 from langfuse import observe
 from typing import List, Optional
 from pathlib import Path
 import re
+
+from observable_agent_starter import BaseAgent
 
 
 class CodePatch(dspy.Signature):
@@ -49,11 +54,16 @@ def validate_patch_files(allowed_patterns: List[str], patch_files: List[str]) ->
     return True
 
 
-class CodeAgent(dspy.Module):
-    """Autonomous coding agent with guardrails."""
+class CodeAgent(dspy.Module, BaseAgent):
+    """Autonomous coding agent with guardrails.
+
+    Extends BaseAgent to get automatic LM configuration and tracing helpers.
+    """
 
     def __init__(self):
-        super().__init__()
+        dspy.Module.__init__(self)
+        BaseAgent.__init__(self, observation_name="code-agent-generate")
+
         self.generate = dspy.ChainOfThought(CodePatch)
 
     @observe(name="code-agent-generate")
@@ -93,5 +103,16 @@ class CodeAgent(dspy.Module):
             )
         if not patch_valid:
             raise ValueError("Patch cannot be empty")
+
+        # Log via BaseAgent helper (in addition to @observe decorator)
+        self.log_generation(
+            input_data={"task": task, "allowed_patterns": patterns_str},
+            output_data={
+                "patch_length": len(result.patch),
+                "explanation": result.explanation,
+                "risk_level": result.risk_level,
+                "files_modified": patch_files
+            }
+        )
 
         return result

@@ -2,6 +2,36 @@
 
 An autonomous coding agent that generates code patches with built-in observability, testing, and guardrails.
 
+## Extending BaseAgent
+
+This example demonstrates extending `observable_agent_starter.BaseAgent`:
+
+```python
+from observable_agent_starter import BaseAgent
+import dspy
+
+class CodeAgent(dspy.Module, BaseAgent):
+    """Autonomous coding agent with guardrails."""
+
+    def __init__(self):
+        dspy.Module.__init__(self)
+        BaseAgent.__init__(self, observation_name="code-agent-generate")
+
+        # Your agent setup
+        self.generate = dspy.ChainOfThought(CodePatch)
+```
+
+**What BaseAgent provides:**
+- Automatic LM configuration from environment variables
+- Langfuse tracing helper (`self.log_generation()`)
+- Logging infrastructure
+
+**What this example adds:**
+- DSPy signatures for code generation
+- Guardrails and validation logic (file restrictions, risk assessment)
+- Git integration and PR workflow
+- Operational quality gates (lint, tests, type-check)
+
 ## Features
 
 - **DSPy-based Agent** - Structured code generation with Chain-of-Thought reasoning

@@ -1,16 +1,20 @@
-"""DSPy module for generating video ideas from a creator portfolio."""
+"""DSPy module for generating video ideas from a creator portfolio.
+
+Demonstrates extending BaseAgent from observable_agent_starter.
+"""
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import asdict, dataclass
 from typing import List, Sequence
 
 import dspy
 
+from observable_agent_starter import BaseAgent
 from influencer_assistant.profile import InfluencerProfile
 
 from .context import render_profile_context
-from .config import configure_lm_from_env, log_video_ideas
+from .config import configure_lm_from_env
 
 
 @dataclass
@@ -35,11 +39,16 @@ class VideoIdeaSignature(dspy.Signature):
     )
 
 
-class VideoIdeaGenerator(dspy.Module):
-    """Generate video ideas grounded in a `InfluencerProfile`."""
+class VideoIdeaGenerator(dspy.Module, BaseAgent):
+    """Generate video ideas grounded in a `InfluencerProfile`.
+
+    Extends BaseAgent to get automatic LM configuration and tracing helpers.
+    """
 
     def __init__(self, *, target_count: int = 4) -> None:
-        super().__init__()
+        dspy.Module.__init__(self)
+        BaseAgent.__init__(self, observation_name="influencer-video-ideas")
+
         self.predict = dspy.Predict(VideoIdeaSignature)
         self._target_count = target_count
 
@@ -90,12 +99,16 @@ class VideoIdeaGenerator(dspy.Module):
                 )
                 fallback_reason = "empty_response"
 
-        log_video_ideas(
-            profile=profile,
-            request=request,
-            ideas=ideas,
+        # Log via BaseAgent helper
+        self.log_generation(
+            input_data={"profile": profile.handle, "request": request},
+            output_data={
+                "creator_id": profile.creator_id,
+                "handle": profile.handle,
+                "ideas": [asdict(idea) for idea in ideas]
+            },
             variation_token=variation_token,
-            fallback_reason=fallback_reason,
+            fallback_reason=fallback_reason
         )
 
         return ideas

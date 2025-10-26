@@ -17,7 +17,8 @@ def cleanup_lm():
 def test_configure_lm_from_env_without_key_returns_false(monkeypatch):
     monkeypatch.delenv("OPENAI_API_KEY", raising=False)
     # Also patch the _load_dotenv_into_env function to prevent .env file loading
-    monkeypatch.setattr("observable_agent_starter.agents.routing.config._load_dotenv_into_env", lambda: None)
+    from observable_agent_starter import config
+    monkeypatch.setattr(config, "_load_dotenv_into_env", lambda: None)
     assert configure_lm_from_env() is False
     assert dspy.settings.get("lm") is None
 

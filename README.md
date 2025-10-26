@@ -2,79 +2,161 @@
 
 [![Tests](https://github.com/ammons-datalabs/observable-agent-starter/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/ammons-datalabs/observable-agent-starter/actions/workflows/ci.yml)
 
-Production-ready Python agent starter with built-in observability, evaluation, and CI.  
-Pre-wired with:
+**Production-ready DSPy agent framework with Langfuse observability, automated testing, and deployment templates.**
 
-- **DSPy** (or LangGraph) for agent logic  
-- **Langfuse** for tracing and observability  
-- **DeepEval** for LLM quality metrics  
-- **FastAPI** for production-ready HTTP endpoints  
-- **MCP client adapters** for tool-calling across MCP servers  
-- **GitHub Actions CI** for linting, type-checking, tests, and evals  
+## What This Starter Gives You
 
----
+| Component | What | Where |
+|-----------|------|-------|
+| **Base Framework** | Thin `BaseAgent` with config + tracing | `src/observable_agent_starter/` |
+| **Observability** | Langfuse integration | Auto-configured via env vars |
+| **Testing** | pytest + CI/CD | `tests/` + GitHub Actions |
+| **Examples** | Coding agent + Influencer assistant | `examples/` |
+| **Evaluations** | DeepEval (example-scoped) | `examples/influencer_assistant/evals/` |
 
-## Why It’s Useful for SMEs
+## Pre-wired Stack
 
-Small engineering teams need agents that work reliably from day one.  
-This starter eliminates weeks of integration work by pre-wiring **DSPy**, **Langfuse**, **DeepEval**, **FastAPI**, and **GitHub Actions CI**.
-
-You get a **debuggable, testable agent architecture with observability baked in** — so you can focus on your domain logic instead of infrastructure.  
-The included thin-triage example shows the pattern; swap in your own tools and prompts and ship confidently.
-
----
-
-## Demo
-
-### CLI Agent
-
-```bash
-# Run the starter agent directly
-python -m observable_agent_starter.agents.routing
-# {"route": "billing", "explanation": "Policy fallback used..."}
-```
-
-### FastAPI Server
-
-```bash
-# Start the server
-uvicorn observable_agent_starter.servers.api:app --reload
-
-# Test the /route endpoint
-curl -X POST http://localhost:8000/route \
-  -H "Content-Type: application/json" \
-  -d '{"request": "My invoice has extra charges"}'
-
-# Response: {"route": "billing", "explanation": "..."}
-```
+- **DSPy** - Structured LLM programming
+- **Langfuse** - Observability and tracing
+- **pytest** - Testing framework
+- **DeepEval** - LLM quality metrics (influencer example)
+- **GitHub Actions** - CI/CD pipeline
 
 ---
 
 ## Quick Start
 
 ```bash
-# 1) Create venv & install deps (installs into .venv by default)
+# 1. Install
 make dev
 
-# 2) (Optional) export model + Langfuse creds
+# 2. Configure
 export OPENAI_API_KEY=...
-export OPENAI_MODEL=openai/gpt-4o-mini  # optional override
-export LANGFUSE_PUBLIC_KEY=...
-export LANGFUSE_SECRET_KEY=...
-export LANGFUSE_HOST=https://cloud.langfuse.com
+export LANGFUSE_PUBLIC_KEY=...      # Optional
+export LANGFUSE_SECRET_KEY=...      # Optional
 
-# 3) Run the CLI agent
-make run
-
-# 4) Run tests + evals
+# 3. Run tests
 make test
 ```
 
-> Targets look for the virtual environment at `.venv` by default.  
-> To use an existing environment (for example managed by `pyenv`), override the path when invoking `make`, e.g.  
-> `make VENV=$(pyenv prefix) test`.
+---
 
-Use `make evals` for DeepEval CLI guidance once you have credentials configured.
+## Structure
+
+```
+src/observable_agent_starter/   # Core framework
+  ├── base_agent.py              # Thin base with config + tracing
+  ├── config.py                  # LM + Langfuse configuration
+  └── __init__.py
+
+examples/                        # Example implementations
+  ├── coding_agent/              # Code generation with gates
+  └── influencer_assistant/      # Content ideation with DeepEval
+
+tests/                           # Framework tests
+  ├── test_base_agent.py
+  └── test_config.py
+```
+
+---
+
+## Examples
+
+### 1. Coding Agent - Agent-in-the-Loop
+
+Demonstrates:
+- Extending `BaseAgent` for code generation
+- DSPy Chain-of-Thought with guardrails
+- Git integration + PR workflow
+- Operational quality gates (lint, tests, type-check)
+
+```bash
+cd examples/coding_agent
+pip install -e .
+
+adl-agent "Add docstrings to public functions" \
+  --repo /path/to/your/repo \
+  --allow "src/**/*.py"
+```
+
+[Full documentation →](examples/coding_agent/README.md)
+
+### 2. Influencer Assistant - DeepEval Showcase
+
+Demonstrates:
+- Extending `BaseAgent` for content ideation
+- DSPy prompt optimization (teleprompting)
+- **DeepEval quality metrics** (relevancy, faithfulness, pillar adherence)
+- Streamlit dashboard
+
+```bash
+cd examples/influencer_assistant
+pip install -e '.[dev]'
+
+# Run tests + evals
+pytest tests/ -v
+pytest evals/ -v
+
+# Launch dashboard
+streamlit run dashboard/app.py
+```
+
+[Full documentation →](examples/influencer_assistant/README.md)
+
+---
+
+## Extending BaseAgent
+
+```python
+from observable_agent_starter import BaseAgent
+import dspy
+
+class MyAgent(dspy.Module, BaseAgent):
+    """Your custom agent."""
+
+    def __init__(self):
+        dspy.Module.__init__(self)
+        BaseAgent.__init__(self, observation_name="my-agent")
+
+        # Your DSPy signatures, modules, etc.
+        self.predict = dspy.ChainOfThought(MySignature)
+
+    def forward(self, **kwargs):
+        # Your agent logic
+        result = self.predict(**kwargs)
+
+        # Log to Langfuse
+        self.log_generation(
+            input_data=kwargs,
+            output_data={"result": result.output}
+        )
+
+        return result
+```
+
+**BaseAgent provides:**
+- Automatic LM configuration from `OPENAI_*` env vars
+- Langfuse tracing helper (`self.log_generation()`)
+- Logging infrastructure
+
+**You provide:**
+- DSPy signatures and modules
+- Agent logic and fallback handling
+- Domain-specific evaluation strategy
+
+---
+
+## Why This Helps
+
+**For Production:**
+- Observable by default (Langfuse traces)
+- Testable (pytest + CI)
+- Deployable (FastAPI patterns in examples)
+
+**For Synthenova/Employer Showcase:**
+- ✅ Agent-in-the-loop pattern (coding agent)
+- ✅ Eval discipline (influencer DeepEval)
+- ✅ Observability-first design (Langfuse)
 
 ---
 
@@ -95,108 +177,10 @@ Use `make evals` for DeepEval CLI guidance once you have credentials configured.
 
 ---
 
-## Structure
-
-```
-.
-├─ src/observable_agent_starter/      # The installable package
-│  ├─ agents/
-│  │  └─ routing/          # Starter routing agent (customize this!)
-│  │     ├─ agent.py       # StarterAgent - your template
-│  │     ├─ config.py      # LM + Langfuse setup
-│  │     └─ policy.py      # Fallback routing logic
-│  └─ servers/
-│     └─ api.py            # FastAPI production server
-├─ examples/               # Reference implementations
-│  ├─ coding_agent/        # Autonomous coding agent
-│  └─ influencer_assistant/  # Content creation assistant
-├─ tests/                  # Unit tests (93 passing)
-├─ evals/deepeval/         # DeepEval quality metrics
-├─ prompts/                # Jinja2 prompt templates
-├─ mcp/servers.json        # MCP server configs
-├─ .github/workflows/ci.yml  # CI pipeline
-├─ pyproject.toml
-├─ Makefile
-└─ README.md
-```
-
----
-
-## Notes
-
-- **Customize the starter agent** in `src/observable_agent_starter/agents/routing/` — this is your template to modify.
-- The `StarterAgent` class is where you'll implement your logic.
-- Switch between **DSPy** and **LangGraph** easily; framework logic is isolated.
-- `mcp/servers.json` defines Langfuse MCP servers or your own custom ones.
-- Keep prompts in `prompts/` or use managed prompts via MCP.
-- The starter agent auto-configures DSPy from `OPENAI_*` env vars, falls back to a routing policy if the LM misbehaves, and logs all interactions to Langfuse when credentials exist.
-- The **FastAPI server** (`src/observable_agent_starter/servers/api.py`) provides production-ready endpoints with automatic tracing.
-- The `examples/` folder contains standalone reference implementations for inspiration.
-
----
-
-## Examples
-
-### Autonomous Coding Agent
-
-`examples/coding_agent/` demonstrates an autonomous agent that generates, tests, and commits code patches.
-
-**Features:**
-- DSPy-based structured code generation with Chain-of-Thought
-- Full Langfuse tracing of patch generation and validation
-- Guardrails via DSPy assertions (file restrictions, risk assessment)
-- Automated linting and testing before commit
-- Git integration with optional PR creation
-
-**Usage:**
-```bash
-cd examples/coding_agent
-pip install -e .
-
-export OPENAI_API_KEY=your-key
-
-adl-agent "Add docstrings to public functions" \
-  --repo /path/to/your/repo \
-  --allow "src/**/*.py" "tests/**/*.py"
-```
-
-See [examples/coding_agent/README.md](examples/coding_agent/README.md) for full documentation.
-
-### Influencer Assistant
-
-`examples/influencer_assistant/` includes a richer DSPy example modelling a creator portfolio that generates content ideas and comes with pytest coverage.
-
-Install its dependencies with:
-```bash
-make dev  # First ensure .venv exists
-.venv/bin/pip install -e '.[examples]'
-```
-
-Then run:
-```bash
-make test-examples
-```
-
-Launch the optional Streamlit dashboard:
-```bash
-make demo-influencer
-```
-
-Idea runs are traced to Langfuse (`observation: influencer-video-ideas`) when `LANGFUSE_*` environment variables are set.
-
-You can experiment with DSPy teleprompting via:
-```bash
-make tune-influencer ARGS="--num-candidates 4"
-```
-(requires LM credentials) to generate a refined prompt saved under
-`examples/influencer_assistant/prompts/`.
-
----
-
 ## License
 
 MIT
 
 ---
 
-> **Ammons Data Labs** builds observable, measurable AI agents and data systems — from fast prototypes to hardened services.
+> **Ammons Data Labs** builds observable, measurable AI agents and data systems.
