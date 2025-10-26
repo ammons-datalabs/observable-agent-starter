@@ -101,7 +101,7 @@ def make_patch_and_test(
 
     # Generate patch with agent
     try:
-        result = agent.forward(
+        result = agent(
             task=task,
             repo_state=repo_state,
             allowed_patterns=allow_globs
