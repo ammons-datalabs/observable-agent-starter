@@ -1,0 +1,26 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "adl-agent"
+version = "0.1.0"
+description = "Autonomous coding agent with DSPy + Langfuse observability"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "dspy-ai",
+    "langfuse",
+    "pytest",
+    "ruff"
+]
+
+[project.scripts]
+adl-agent = "adl_agent.cli:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/adl_agent"]
+
+[tool.ruff]
+line-length = 100
+src = ["src"]

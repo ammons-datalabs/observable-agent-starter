@@ -131,27 +131,59 @@ Use `make evals` for DeepEval CLI guidance once you have credentials configured.
 
 ## Examples
 
-- `examples/influencer_assistant/` includes a richer DSPy example modelling a creator portfolio that generates content ideas and comes with pytest coverage.
-  Install its dependencies with:
-  ```bash
-  make dev  # First ensure .venv exists
-  .venv/bin/pip install -e '.[examples]'
-  ```
-  Then run:
-  ```bash
-  make test-examples
-  ```
-  Launch the optional Streamlit dashboard:
-  ```bash
-  make demo-influencer
-  ```
-  Idea runs are traced to Langfuse (`observation: influencer-video-ideas`) when `LANGFUSE_*` environment variables are set.  
-  You can experiment with DSPy teleprompting via:
-  ```bash
-  make tune-influencer ARGS="--num-candidates 4"
-  ```
-  (requires LM credentials) to generate a refined prompt saved under  
-  `examples/influencer_assistant/prompts/`.
+### Autonomous Coding Agent
+
+`examples/coding_agent/` demonstrates an autonomous agent that generates, tests, and commits code patches.
+
+**Features:**
+- DSPy-based structured code generation with Chain-of-Thought
+- Full Langfuse tracing of patch generation and validation
+- Guardrails via DSPy assertions (file restrictions, risk assessment)
+- Automated linting and testing before commit
+- Git integration with optional PR creation
+
+**Usage:**
+```bash
+cd examples/coding_agent
+pip install -e .
+
+export OPENAI_API_KEY=your-key
+
+adl-agent "Add docstrings to public functions" \
+  --repo /path/to/your/repo \
+  --allow "src/**/*.py" "tests/**/*.py"
+```
+
+See [examples/coding_agent/README.md](examples/coding_agent/README.md) for full documentation.
+
+### Influencer Assistant
+
+`examples/influencer_assistant/` includes a richer DSPy example modelling a creator portfolio that generates content ideas and comes with pytest coverage.
+
+Install its dependencies with:
+```bash
+make dev  # First ensure .venv exists
+.venv/bin/pip install -e '.[examples]'
+```
+
+Then run:
+```bash
+make test-examples
+```
+
+Launch the optional Streamlit dashboard:
+```bash
+make demo-influencer
+```
+
+Idea runs are traced to Langfuse (`observation: influencer-video-ideas`) when `LANGFUSE_*` environment variables are set.
+
+You can experiment with DSPy teleprompting via:
+```bash
+make tune-influencer ARGS="--num-candidates 4"
+```
+(requires LM credentials) to generate a refined prompt saved under
+`examples/influencer_assistant/prompts/`.
 
 ---
 

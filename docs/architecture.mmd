@@ -1,0 +1,60 @@
+graph TB
+    subgraph "Development"
+        Code[("👨‍💻 Agent Code<br/>(DSPy/LangGraph)")]
+        Prompts[("📝 Prompt Templates<br/>(Jinja2)")]
+        Tests[("🧪 Unit Tests<br/>(pytest)")]
+    end
+
+    subgraph "Observability Layer"
+        Langfuse[("🔍 Langfuse<br/>Tracing & Monitoring")]
+    end
+
+    subgraph "Agent Runtime"
+        Agent["🤖 ExampleAgent<br/>Smart Routing"]
+        Policy["📋 Fallback Policy<br/>Guardrails"]
+        MCP["🔌 MCP Adapters<br/>Tool Calling"]
+    end
+
+    subgraph "Deployment"
+        CLI["💻 CLI Interface<br/>python -m agents.example"]
+        API["🚀 FastAPI Server<br/>Production HTTP"]
+    end
+
+    subgraph "Quality Assurance"
+        DeepEval[("📊 DeepEval<br/>LLM Metrics")]
+        CI["⚙️ GitHub Actions<br/>Lint • Type • Test"]
+    end
+
+    %% Development Flow
+    Code --> Agent
+    Prompts --> Agent
+    Tests --> CI
+
+    %% Runtime Flow
+    Agent --> Policy
+    Agent --> MCP
+    Agent --> CLI
+    Agent --> API
+
+    %% Observability Flow
+    Agent -.traces.-> Langfuse
+    CLI -.traces.-> Langfuse
+    API -.traces.-> Langfuse
+
+    %% Quality Flow
+    Agent --> DeepEval
+    DeepEval --> CI
+    CI --> Code
+
+    %% Styling
+    classDef dev fill:#e1f5ff,stroke:#01579b,stroke-width:2px
+    classDef obs fill:#fff3e0,stroke:#e65100,stroke-width:2px
+    classDef runtime fill:#f3e5f5,stroke:#4a148c,stroke-width:2px
+    classDef deploy fill:#e8f5e9,stroke:#1b5e20,stroke-width:2px
+    classDef qa fill:#fce4ec,stroke:#880e4f,stroke-width:2px
+
+    class Code,Prompts,Tests dev
+    class Langfuse obs
+    class Agent,Policy,MCP runtime
+    class CLI,API deploy
+    class DeepEval,CI qa
