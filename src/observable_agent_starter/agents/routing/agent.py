@@ -18,7 +18,12 @@ class RouteRequestSignature(dspy.Signature):
     route = dspy.OutputField(desc="One of {billing, tech, sales}")
     rationale = dspy.OutputField(desc="Very short reasoning for the decision")
 
-class ExampleAgent(dspy.Module):
+class StarterAgent(dspy.Module):
+    """Starter agent for request routing with observability.
+
+    This is the template agent you'll customize for your use case.
+    Routes requests to billing, tech, or sales departments.
+    """
     def __init__(self):
         super().__init__()
         # Ensure LM is configured before constructing DSPy modules that may inspect settings
@@ -57,7 +62,7 @@ class ExampleAgent(dspy.Module):
         result = {"route": raw_route, "explanation": explanation}
 
         log_langfuse_generation(
-            name="example-agent",
+            name="routing-agent",
             input_text=request,
             output_payload=result,
             metadata={"fallback_reason": fallback_reason} if fallback_reason else None,
@@ -65,9 +70,12 @@ class ExampleAgent(dspy.Module):
 
         return result
 
+# Backward compatibility alias
+ExampleAgent = StarterAgent
+
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
-    agent = ExampleAgent()
+    agent = StarterAgent()
     example = "The invoice shows an extra fee on my account."
     # Prefer calling the module directly to avoid DSPy warnings about .forward
     print(agent(request=example))

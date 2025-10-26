@@ -29,8 +29,8 @@ The included thin-triage example shows the pattern; swap in your own tools and p
 ### CLI Agent
 
 ```bash
-# Run the example agent directly
-python -m agents.example
+# Run the starter agent directly
+python -m observable_agent_starter.agents.routing
 # {"route": "billing", "explanation": "Policy fallback used..."}
 ```
 
@@ -38,7 +38,7 @@ python -m agents.example
 
 ```bash
 # Start the server
-uvicorn examples.fastapi_server:app --reload
+uvicorn observable_agent_starter.servers.api:app --reload
 
 # Test the /route endpoint
 curl -X POST http://localhost:8000/route \
@@ -99,14 +99,18 @@ Use `make evals` for DeepEval CLI guidance once you have credentials configured.
 
 ```
 .
-├─ agents/example/         # Example agent (DSPy-based routing)
-│  ├─ agent.py             # ExampleAgent (swap with your logic)
-│  ├─ config.py            # LM + Langfuse setup
-│  └─ policy.py            # Fallback routing policy
-├─ examples/
-│  ├─ fastapi_server.py    # FastAPI production server
-│  └─ influencer_assistant/  # Richer DSPy example
-├─ tests/                  # Unit tests (24 passing)
+├─ src/observable_agent_starter/      # The installable package
+│  ├─ agents/
+│  │  └─ routing/          # Starter routing agent (customize this!)
+│  │     ├─ agent.py       # StarterAgent - your template
+│  │     ├─ config.py      # LM + Langfuse setup
+│  │     └─ policy.py      # Fallback routing logic
+│  └─ servers/
+│     └─ api.py            # FastAPI production server
+├─ examples/               # Reference implementations
+│  ├─ coding_agent/        # Autonomous coding agent
+│  └─ influencer_assistant/  # Content creation assistant
+├─ tests/                  # Unit tests (93 passing)
 ├─ evals/deepeval/         # DeepEval quality metrics
 ├─ prompts/                # Jinja2 prompt templates
 ├─ mcp/servers.json        # MCP server configs
@@ -120,12 +124,14 @@ Use `make evals` for DeepEval CLI guidance once you have credentials configured.
 
 ## Notes
 
-- **Swap the example agent** with your own logic — all main logic lives in `agents/example/agent.py` (`ExampleAgent` class).  
-- Switch between **DSPy** and **LangGraph** easily; framework logic is isolated.  
-- `mcp/servers.json` defines Langfuse MCP servers or your own custom ones.  
-- Keep prompts in `prompts/` or use managed prompts via MCP.  
-- The example agent auto-configures DSPy from `OPENAI_*` env vars, falls back to a routing policy if the LM misbehaves, and logs all interactions to Langfuse when credentials exist.  
-- The **FastAPI server** (`examples/fastapi_server.py`) provides production-ready endpoints with automatic tracing.
+- **Customize the starter agent** in `src/observable_agent_starter/agents/routing/` — this is your template to modify.
+- The `StarterAgent` class is where you'll implement your logic.
+- Switch between **DSPy** and **LangGraph** easily; framework logic is isolated.
+- `mcp/servers.json` defines Langfuse MCP servers or your own custom ones.
+- Keep prompts in `prompts/` or use managed prompts via MCP.
+- The starter agent auto-configures DSPy from `OPENAI_*` env vars, falls back to a routing policy if the LM misbehaves, and logs all interactions to Langfuse when credentials exist.
+- The **FastAPI server** (`src/observable_agent_starter/servers/api.py`) provides production-ready endpoints with automatic tracing.
+- The `examples/` folder contains standalone reference implementations for inspiration.
 
 ---
 

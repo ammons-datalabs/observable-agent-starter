@@ -24,7 +24,7 @@ dependencies = [
 ]
 
 [tool.hatch.build.targets.wheel]
-packages = ["agents"]
+packages = ["src/observable_agent_starter"]
 
 [tool.hatch.build.targets.wheel.force-include]
 prompts = "prompts"
@@ -34,7 +34,7 @@ examples = "examples"
 
 [tool.hatch.build.targets.sdist]
 include = [
-  "agents",
+  "src",
   "prompts",
   "evals",
   "mcp",
@@ -43,6 +43,9 @@ include = [
   "Makefile",
   "README.md"
 ]
+
+[project.scripts]
+oas-agent = "observable_agent_starter.agents.routing.__main__:main"
 
 [project.optional-dependencies]
 dev = [
@@ -66,7 +69,7 @@ exclude = [
 [tool.ruff]
 line-length = 100
 src = [
-  "agents",
+  "src",
   "evals",
   "prompts",
   "examples"

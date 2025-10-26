@@ -7,10 +7,10 @@ from typing import Sequence
 
 import dspy
 
-from agents.example.config import (
-    configure_lm_from_env as _base_configure_lm,
-    log_langfuse_generation,
-)
+from observable_agent_starter.agents.routing import config
+
+configure_lm_from_env_base = config.configure_lm_from_env
+log_langfuse_generation = config.log_langfuse_generation
 
 from influencer_assistant.profile import InfluencerProfile
 
@@ -18,7 +18,7 @@ from influencer_assistant.profile import InfluencerProfile
 def configure_lm_from_env() -> bool:
     """Delegate to the shared triage LM configurator."""
 
-    return _base_configure_lm()
+    return configure_lm_from_env_base()
 
 
 def reset_lm() -> None:

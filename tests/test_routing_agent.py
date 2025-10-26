@@ -1,4 +1,4 @@
-"""Unit tests for the Observable Agent Starter example agent."""
+"""Unit tests for the Observable Agent Starter routing agent."""
 
 from __future__ import annotations
 
@@ -7,8 +7,8 @@ from typing import Any
 import dspy
 import pytest
 
-from agents.example.agent import ExampleAgent, ALLOWED_ROUTES
-from agents.example import config
+from observable_agent_starter.agents.routing import StarterAgent, ExampleAgent, ALLOWED_ROUTES
+from observable_agent_starter.agents.routing import config
 
 
 class DummyPrediction:
@@ -25,11 +25,22 @@ class DummyPredictor:
         return DummyPrediction(self._route)
 
 
-@pytest.fixture(autouse=True)
+@pytest.fixture(autouse=True, scope="function")
 def reset_dspy_settings():
+    """Reset DSPy settings before each test in this module only."""
+    import dspy.dsp.utils.settings as dspy_settings_module
+
+    # Reset the thread ownership so each test can configure
+    dspy_settings_module.config_owner_thread_id = None
+    dspy_settings_module.config_owner_async_task = None
+
     dspy.settings.configure(lm=None)
     config._LANGFUSE_CLIENT = None  # type: ignore[attr-defined]
     yield
+
+    # Reset again after test
+    dspy_settings_module.config_owner_thread_id = None
+    dspy_settings_module.config_owner_async_task = None
     dspy.settings.configure(lm=None)
     config._LANGFUSE_CLIENT = None  # type: ignore[attr-defined]
 

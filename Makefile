@@ -49,4 +49,7 @@ tune-influencer:
 	$(PYTHON) examples/influencer_assistant/training/tune_video_ideas.py $(ARGS)
 
 run:
-	$(PYTHON) -m agents.example
+	$(PYTHON) -m observable_agent_starter.agents.routing
+
+server:
+	$(VENV)/bin/uvicorn observable_agent_starter.servers.api:app --reload

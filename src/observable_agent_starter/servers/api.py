@@ -1,6 +1,6 @@
-"""FastAPI server demonstrating end-to-end agent integration.
+"""FastAPI server for Observable Agent Starter.
 
-Run with: uvicorn examples.fastapi_server:app --reload
+Run with: uvicorn observable_agent_starter.servers.api:app --reload
 Test with: curl -X POST http://localhost:8000/route -H "Content-Type: application/json" -d '{"request": "My invoice has extra charges"}'
 """
 
@@ -12,27 +12,27 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from pydantic import BaseModel
 
-from agents.example.agent import ExampleAgent
+from observable_agent_starter.agents.routing import StarterAgent
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # Global agent instance
-agent: ExampleAgent | None = None
+agent: StarterAgent | None = None
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Initialize agent on startup."""
     global agent
-    logger.info("Initializing ExampleAgent...")
-    agent = ExampleAgent()
+    logger.info("Initializing StarterAgent...")
+    agent = StarterAgent()
     yield
     logger.info("Shutting down...")
 
 
 app = FastAPI(
-    title="Observable Agent Starter - Example API",
+    title="Observable Agent Starter - Routing API",
     description="Production-ready FastAPI server with DSPy agent, Langfuse tracing, and DeepEval quality metrics",
     version="0.1.0",
     lifespan=lifespan,

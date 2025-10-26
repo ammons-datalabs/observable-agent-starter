@@ -5,8 +5,10 @@ from deepeval.metrics import AnswerRelevancyMetric
 from deepeval import assert_test
 from deepeval.test_case import LLMTestCase
 
-from agents.example.agent import ExampleAgent
-from agents.example.config import configure_lm_from_env
+from observable_agent_starter.agents.routing import ExampleAgent
+from observable_agent_starter.agents.routing import config
+
+configure_lm_from_env = config.configure_lm_from_env
 
 # Load .env early so skipif conditions can check for API keys
 configure_lm_from_env()

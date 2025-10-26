@@ -6,7 +6,7 @@ import pytest
 from fastapi.testclient import TestClient
 from unittest.mock import Mock, patch
 
-from examples.fastapi_server import app, RouteRequest, RouteResponse
+from observable_agent_starter.servers.api import app, RouteRequest, RouteResponse
 
 
 @pytest.fixture
@@ -174,7 +174,7 @@ class TestAgentLifecycle:
         """Test that route endpoint fails gracefully if agent is None."""
         # Create a test client without triggering lifespan (no context manager)
         # This simulates the case where agent initialization failed
-        import examples.fastapi_server as server
+        import observable_agent_starter.servers.api as server
 
         # Temporarily set agent to None
         original_agent = server.agent
@@ -204,7 +204,7 @@ class TestOpenAPIDocumentation:
 
         assert response.status_code == 200
         data = response.json()
-        assert data["info"]["title"] == "Observable Agent Starter - Example API"
+        assert data["info"]["title"] == "Observable Agent Starter - Routing API"
         assert data["info"]["version"] == "0.1.0"
 
     def test_docs_endpoint_available(self, client):

@@ -1,14 +1,17 @@
+"""CLI entry point for the routing agent."""
+
 import logging
 
-from .agent import ExampleAgent
+from .agent import StarterAgent
 
 
 def main() -> None:
+    """Run the starter agent with an example request."""
     logging.basicConfig(level=logging.INFO)
-    triager = ExampleAgent()
+    agent = StarterAgent()
     example = "The invoice shows an extra fee on my account."
     # Prefer calling the module directly instead of .forward(...)
-    result = triager(request=example)
+    result = agent(request=example)
     print(result)
 
 

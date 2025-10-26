@@ -1,7 +1,7 @@
 """Tests for the routing policy module."""
 
 import pytest
-from agents.example.policy import neutral_policy
+from observable_agent_starter.agents.routing import neutral_policy
 
 
 class TestNeutralPolicy:
