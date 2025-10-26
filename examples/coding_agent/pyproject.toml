@@ -9,7 +9,7 @@ description = "Autonomous coding agent with DSPy + Langfuse observability"
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
-    "observable-agent-starter @ file://../../",
+    "observable-agent-starter",
     "dspy-ai",
     "langfuse",
     "pytest",
