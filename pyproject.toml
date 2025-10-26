@@ -36,6 +36,7 @@ examples = [
 [tool.pyright]
 venvPath = "."
 venv = ".venv"
+include = ["src", "tests"]
 
 [tool.ruff]
 line-length = 100
