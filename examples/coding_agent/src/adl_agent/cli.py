@@ -47,7 +47,7 @@ def setup_dspy():
 
     print(f"🧠 Model: {model}")
     if langfuse_configured:
-        print(f"📊 Tracing: Enabled (Langfuse)")
+        print("📊 Tracing: Enabled (Langfuse)")
     print()
 
 
@@ -109,7 +109,7 @@ def main():
         # Branch might exist, try to check it out
         try:
             run_command(["git", "checkout", branch], cwd=str(repo))
-            print(f"⚠️  Branch already exists, checked it out")
+            print("⚠️  Branch already exists, checked it out")
         except subprocess.CalledProcessError as e:
             print(f"❌ Error: Could not create or checkout branch: {e}")
             print(f"   You may have uncommitted changes. Staying on {current_branch}")

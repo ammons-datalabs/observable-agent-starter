@@ -2,11 +2,10 @@
 
 import pytest
 import sys
-from unittest.mock import Mock, patch, call
-from pathlib import Path
+from unittest.mock import Mock, patch
 import subprocess
 
-from adl_agent.cli import setup_dspy, main, __version__
+from adl_agent.cli import setup_dspy, main
 
 
 class TestSetupDSPy:
@@ -320,8 +319,6 @@ class TestBranchHandling:
         repo = tmp_path / "test_repo"
         repo.mkdir()
         (repo / ".git").mkdir()
-
-        call_count = [0]
 
         def checkout_behavior(cmd, cwd):
             if cmd[0] == "git" and cmd[1] == "checkout" and "-b" in cmd:

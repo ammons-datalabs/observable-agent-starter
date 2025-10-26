@@ -5,9 +5,8 @@ Demonstrates extending BaseAgent from observable_agent_starter.
 
 import dspy
 from langfuse import observe
-from typing import List, Optional
+from typing import List
 from pathlib import Path
-import re
 
 from observable_agent_starter import BaseAgent
 

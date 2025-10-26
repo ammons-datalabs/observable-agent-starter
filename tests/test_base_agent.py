@@ -28,7 +28,7 @@ def test_base_agent_auto_configures_lm(monkeypatch):
     monkeypatch.setenv("OPENAI_API_KEY", "test-key")
     monkeypatch.setenv("OPENAI_MODEL", "openai/test-model")
 
-    agent = BaseAgent(observation_name="test-agent")
+    BaseAgent(observation_name="test-agent")
 
     lm = dspy.settings.get("lm") if hasattr(dspy.settings, "get") else None
     if lm is None:

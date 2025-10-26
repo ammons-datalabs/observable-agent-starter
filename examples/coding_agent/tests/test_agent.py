@@ -1,6 +1,5 @@
 """Tests for the coding agent."""
 
-import pytest
 from adl_agent.agent import extract_files_from_patch, validate_patch_files
 
 
