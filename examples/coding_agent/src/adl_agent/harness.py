@@ -19,6 +19,20 @@ def repo_snapshot(repo_path: str) -> str:
         diff = run_command(["git", "diff"], cwd=repo_path, check=False).stdout
         status = run_command(["git", "status", "--short"], cwd=repo_path, check=False).stdout
 
+        # Also capture file contents for context (limit to reasonable size)
+        file_contents = []
+        for file_path in files.strip().split("\n"):
+            if file_path:
+                try:
+                    full_path = pathlib.Path(repo_path) / file_path
+                    if full_path.exists() and full_path.stat().st_size < 50000:  # Skip files > 50KB
+                        content = full_path.read_text()
+                        file_contents.append(f"=== {file_path} ===\n{content}")
+                except Exception:
+                    pass  # Skip files that can't be read
+
+        contents_section = "\n\n".join(file_contents) if file_contents else "(no readable files)"
+
         snapshot = f"""=== GIT FILES ===
 {files}
 
@@ -27,6 +41,9 @@ def repo_snapshot(repo_path: str) -> str:
 
 === GIT STATUS ===
 {status}
+
+=== FILE CONTENTS ===
+{contents_section}
 """
         return snapshot
     except Exception as e:

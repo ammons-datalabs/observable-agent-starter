@@ -79,6 +79,36 @@ class TestRepoSnapshot:
         assert "Error capturing repo state" in snapshot
         assert "Git command failed" in snapshot
 
+    def test_repo_snapshot_includes_file_contents(self, tmp_path):
+        """Test that repo snapshot includes actual file contents."""
+        # Create a real git repo with files
+        repo = tmp_path / "test_repo"
+        repo.mkdir()
+
+        # Initialize git
+        subprocess.run(["git", "init"], cwd=repo, check=True, capture_output=True)
+        subprocess.run(["git", "config", "user.email", "test@example.com"], cwd=repo, check=True)
+        subprocess.run(["git", "config", "user.name", "Test User"], cwd=repo, check=True)
+
+        # Create test files
+        (repo / "file1.py").write_text("def hello():\n    return 'world'\n")
+        (repo / "file2.py").write_text("x = 42\n")
+
+        # Add and commit
+        subprocess.run(["git", "add", "."], cwd=repo, check=True)
+        subprocess.run(["git", "commit", "-m", "test"], cwd=repo, check=True)
+
+        # Capture snapshot
+        snapshot = repo_snapshot(str(repo))
+
+        # Verify file contents are included
+        assert "=== FILE CONTENTS ===" in snapshot
+        assert "=== file1.py ===" in snapshot
+        assert "def hello():" in snapshot
+        assert "return 'world'" in snapshot
+        assert "=== file2.py ===" in snapshot
+        assert "x = 42" in snapshot
+
 
 class TestApplyPatch:
     """Tests for apply_patch function."""
@@ -225,7 +255,7 @@ class TestMakePatchAndTest:
         mock_result.patch = "diff content"
         mock_result.explanation = "Added feature X"
         mock_result.risk_level = "low"
-        mock_agent.forward.return_value = mock_result
+        mock_agent.return_value = mock_result
 
         patch, tests_passed, output = make_patch_and_test(
             task="Add feature X",
@@ -242,7 +272,7 @@ class TestMakePatchAndTest:
         assert "all tests passed" in output
 
         # Verify agent was called correctly
-        mock_agent.forward.assert_called_once_with(
+        mock_agent.assert_called_once_with(
             task="Add feature X",
             repo_state="repo state",
             allowed_patterns=["src/**/*.py"],
@@ -254,7 +284,7 @@ class TestMakePatchAndTest:
         mock_snapshot.return_value = "repo state"
 
         mock_agent = Mock()
-        mock_agent.forward.side_effect = ValueError("Patch modifies disallowed files")
+        mock_agent.side_effect = ValueError("Patch modifies disallowed files")
 
         patch, tests_passed, output = make_patch_and_test(
             task="Bad task",
@@ -278,7 +308,7 @@ class TestMakePatchAndTest:
         mock_result.patch = "diff content"
         mock_result.explanation = "Would add feature"
         mock_result.risk_level = "medium"
-        mock_agent.forward.return_value = mock_result
+        mock_agent.return_value = mock_result
 
         patch, tests_passed, output = make_patch_and_test(
             task="Add feature",
@@ -306,7 +336,7 @@ class TestMakePatchAndTest:
         mock_result.patch = "bad diff"
         mock_result.explanation = "Added feature"
         mock_result.risk_level = "low"
-        mock_agent.forward.return_value = mock_result
+        mock_agent.return_value = mock_result
 
         patch, tests_passed, output = make_patch_and_test(
             task="Add feature",
@@ -336,7 +366,7 @@ class TestMakePatchAndTest:
         mock_result.patch = "diff content"
         mock_result.explanation = "Added feature"
         mock_result.risk_level = "high"
-        mock_agent.forward.return_value = mock_result
+        mock_agent.return_value = mock_result
 
         patch, tests_passed, output = make_patch_and_test(
             task="Add feature",
