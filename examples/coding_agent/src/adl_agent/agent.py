@@ -18,7 +18,17 @@ class CodePatch(dspy.Signature):
     repo_state: str = dspy.InputField(desc="Current repository state (files + diff)")
     allowed_patterns: str = dspy.InputField(desc="Glob patterns for allowed files")
 
-    patch: str = dspy.OutputField(desc="Unified diff patch (git format)")
+    patch: str = dspy.OutputField(
+        desc="Unified diff patch in git format. Must start with '--- a/filename' and '+++ b/filename', "
+        "followed by @@ line numbers, then actual diff lines with +/- prefixes. "
+        "Example:\n"
+        "--- a/file.py\n"
+        "+++ b/file.py\n"
+        "@@ -1,3 +1,5 @@\n"
+        " existing line\n"
+        "+new line\n"
+        " existing line"
+    )
     explanation: str = dspy.OutputField(desc="What changed and why")
     risk_level: str = dspy.OutputField(desc="Risk assessment: low, medium, or high")
     files_modified: str = dspy.OutputField(desc="Comma-separated list of modified files")
