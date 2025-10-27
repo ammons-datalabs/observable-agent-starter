@@ -81,25 +81,48 @@ def format_lint_and_test(repo_path: str) -> Tuple[bool, str]:
     return all_passed, output
 
 
-@observe(name="apply-patch")
-def apply_patch(repo_path: str, patch: str) -> Tuple[bool, str]:
-    """Apply a git patch to the repository."""
-    import tempfile
+def strip_markdown_fences(content: str) -> str:
+    """Remove markdown code fences if present."""
+    lines = content.split('\n')
 
-    with tempfile.NamedTemporaryFile(mode='w', suffix='.patch', delete=False) as f:
-        f.write(patch)
-        patch_file = f.name
+    # Check if content starts with markdown code fence
+    if lines and lines[0].strip().startswith('```'):
+        # Remove first line
+        lines = lines[1:]
 
+        # Check if content ends with markdown code fence
+        if lines and lines[-1].strip() == '```':
+            # Remove last line
+            lines = lines[:-1]
+
+    return '\n'.join(lines)
+
+
+@observe(name="write-new-file")
+def write_new_file(repo_path: str, filename: str, content: str) -> Tuple[bool, str]:
+    """Write a new file to the repository."""
     try:
-        result = run_command(["git", "apply", patch_file], cwd=repo_path, check=False)
-        success = result.returncode == 0
+        file_path = pathlib.Path(repo_path) / filename
 
-        return success, result.stdout + result.stderr
-    finally:
-        pathlib.Path(patch_file).unlink(missing_ok=True)
+        # Check if file already exists
+        if file_path.exists():
+            return False, f"File {filename} already exists"
+
+        # Strip markdown code fences if present (common LLM behavior)
+        cleaned_content = strip_markdown_fences(content)
+
+        # Create parent directories if needed
+        file_path.parent.mkdir(parents=True, exist_ok=True)
+
+        # Write the file
+        file_path.write_text(cleaned_content)
+
+        return True, f"Created {filename} ({len(cleaned_content)} bytes)"
+    except Exception as e:
+        return False, f"Failed to write file: {e}"
 
 
-@observe(name="make-patch-and-test")
+@observe(name="make-file-and-test")
 def make_patch_and_test(
     task: str,
     repo_path: str,
@@ -108,41 +131,43 @@ def make_patch_and_test(
     dry_run: bool = False
 ) -> Tuple[str, bool, str]:
     """
-    Generate a patch using the agent and test it.
+    Generate a new file using the agent and test it.
 
     Returns:
-        (patch_text, tests_passed, output_log)
+        (file_content, tests_passed, output_log)
     """
     # Capture repo state
     repo_state = repo_snapshot(repo_path)
 
-    # Generate patch with agent
+    # Generate file with agent
     try:
         result = agent(
             task=task,
             repo_state=repo_state,
             allowed_patterns=allow_globs
         )
-        patch = result.patch
+        filename = result.filename
+        content = result.content
         explanation = result.explanation
         risk_level = result.risk_level
     except Exception as e:
-        error_msg = f"Agent failed to generate patch: {e}"
+        error_msg = f"Agent failed to generate file: {e}"
         return "", False, error_msg
 
     if dry_run:
-        return patch, False, f"DRY RUN - Patch generated but not applied.\n\nExplanation: {explanation}\nRisk: {risk_level}"
+        return content, False, f"DRY RUN - File generated but not written.\n\nFilename: {filename}\nExplanation: {explanation}\nRisk: {risk_level}"
 
-    # Apply patch
-    applied, apply_output = apply_patch(repo_path, patch)
-    if not applied:
-        return patch, False, f"Failed to apply patch:\n{apply_output}"
+    # Write file
+    written, write_output = write_new_file(repo_path, filename, content)
+    if not written:
+        return content, False, f"Failed to write file:\n{write_output}"
 
     # Run tests
     tests_passed, test_output = format_lint_and_test(repo_path)
 
     output = f"""
-=== PATCH APPLIED ===
+=== FILE CREATED ===
+Filename: {filename}
 Explanation: {explanation}
 Risk Level: {risk_level}
 
@@ -150,4 +175,4 @@ Risk Level: {risk_level}
 {test_output}
 """
 
-    return patch, tests_passed, output
+    return content, tests_passed, output

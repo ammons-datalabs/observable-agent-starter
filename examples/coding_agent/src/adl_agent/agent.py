@@ -12,55 +12,38 @@ from observable_agent_starter import BaseAgent
 
 
 class CodePatch(dspy.Signature):
-    """Generate a code patch for a given engineering task."""
+    """Generate a new code file for a given engineering task."""
 
     task: str = dspy.InputField(desc="Engineering task description")
     repo_state: str = dspy.InputField(desc="Current repository state (files + diff)")
     allowed_patterns: str = dspy.InputField(desc="Glob patterns for allowed files")
 
-    patch: str = dspy.OutputField(
-        desc="Unified diff patch in git format. Must start with '--- a/filename' and '+++ b/filename', "
-        "followed by @@ line numbers, then actual diff lines with +/- prefixes. "
-        "Example:\n"
-        "--- a/file.py\n"
-        "+++ b/file.py\n"
-        "@@ -1,3 +1,5 @@\n"
-        " existing line\n"
-        "+new line\n"
-        " existing line"
+    filename: str = dspy.OutputField(
+        desc="Name of the file to create (e.g., 'utils.py' or 'src/helpers.py'). "
+        "Must be a relative path from repository root."
     )
-    explanation: str = dspy.OutputField(desc="What changed and why")
+    content: str = dspy.OutputField(
+        desc="Complete contents of the new file. Include all necessary imports, "
+        "docstrings, and implementation. "
+        "IMPORTANT: Output ONLY the raw file content, NO markdown formatting, "
+        "NO code fences (```), NO extra backticks - just the actual Python code."
+    )
+    explanation: str = dspy.OutputField(desc="What the file does and why it's needed")
     risk_level: str = dspy.OutputField(desc="Risk assessment: low, medium, or high")
-    files_modified: str = dspy.OutputField(desc="Comma-separated list of modified files")
 
 
-def extract_files_from_patch(patch: str) -> List[str]:
-    """Extract file paths from a unified diff patch."""
-    files = []
-    for line in patch.split("\n"):
-        if line.startswith("--- a/") or line.startswith("+++ b/"):
-            # Extract filename from diff headers
-            file_path = line.split("/", 1)[1] if "/" in line else ""
-            if file_path and file_path != "/dev/null":
-                files.append(file_path)
-    return list(set(files))
-
-
-def validate_patch_files(allowed_patterns: List[str], patch_files: List[str]) -> bool:
-    """Validate that all files in patch match allowed patterns."""
+def validate_filename(allowed_patterns: List[str], filename: str) -> bool:
+    """Validate that filename matches allowed patterns."""
     import fnmatch
 
     # Use fnmatch which handles ** patterns like shells do
     # This works with both relative patterns (src/**/*.py) and
     # absolute-style patterns (examples/coding_agent/**/*.py)
-    for file_path in patch_files:
-        matched = any(
-            fnmatch.fnmatch(file_path, pattern) or Path(file_path).match(pattern)
-            for pattern in allowed_patterns
-        )
-        if not matched:
-            return False
-    return True
+    matched = any(
+        fnmatch.fnmatch(filename, pattern) or Path(filename).match(pattern)
+        for pattern in allowed_patterns
+    )
+    return matched
 
 
 class CodeAgent(dspy.Module, BaseAgent):
@@ -77,12 +60,12 @@ class CodeAgent(dspy.Module, BaseAgent):
 
     @observe(name="code-agent-generate")
     def forward(self, task: str, repo_state: str, allowed_patterns: List[str]) -> dspy.Prediction:
-        """Generate a code patch with guardrails."""
+        """Generate a new file with guardrails."""
 
         # Join patterns for prompt
         patterns_str = "\n".join(allowed_patterns)
 
-        # Generate patch
+        # Generate file
         result = self.generate(
             task=task,
             repo_state=repo_state,
@@ -90,37 +73,40 @@ class CodeAgent(dspy.Module, BaseAgent):
         )
 
         # Validate guardrails
-        patch_files = extract_files_from_patch(result.patch)
-
         # Check file restrictions
-        files_valid = validate_patch_files(allowed_patterns, patch_files)
+        filename_valid = validate_filename(allowed_patterns, result.filename)
 
         # Check risk level
         risk_valid = result.risk_level.lower() in ["low", "medium", "high"]
 
-        # Check patch is not empty
-        patch_valid = len(result.patch.strip()) > 0
+        # Check content is not empty
+        content_valid = len(result.content.strip()) > 0
+
+        # Check filename is not empty
+        filename_not_empty = len(result.filename.strip()) > 0
 
         # Validate with assertions (guardrails)
-        if not files_valid:
+        if not filename_not_empty:
+            raise ValueError("Filename cannot be empty")
+        if not filename_valid:
             raise ValueError(
-                f"Patch modifies disallowed files. Allowed: {allowed_patterns}, Got: {patch_files}"
+                f"Filename does not match allowed patterns. Allowed: {allowed_patterns}, Got: {result.filename}"
             )
         if not risk_valid:
             raise ValueError(
                 f"Risk level must be low/medium/high, got: {result.risk_level}"
             )
-        if not patch_valid:
-            raise ValueError("Patch cannot be empty")
+        if not content_valid:
+            raise ValueError("File content cannot be empty")
 
         # Log via BaseAgent helper (in addition to @observe decorator)
         self.log_generation(
             input_data={"task": task, "allowed_patterns": patterns_str},
             output_data={
-                "patch_length": len(result.patch),
+                "filename": result.filename,
+                "content_length": len(result.content),
                 "explanation": result.explanation,
-                "risk_level": result.risk_level,
-                "files_modified": patch_files
+                "risk_level": result.risk_level
             }
         )
 

@@ -9,7 +9,8 @@ import pytest
 from adl_agent.harness import (
     run_command,
     repo_snapshot,
-    apply_patch,
+    strip_markdown_fences,
+    write_new_file,
     format_lint_and_test,
     make_patch_and_test,
 )
@@ -110,68 +111,105 @@ class TestRepoSnapshot:
         assert "x = 42" in snapshot
 
 
-class TestApplyPatch:
-    """Tests for apply_patch function."""
+class TestStripMarkdownFences:
+    """Tests for strip_markdown_fences function."""
 
-    def test_apply_patch_success(self, tmp_path):
-        """Test successful patch application."""
-        # Create a temporary git repo
+    def test_strip_python_code_fences(self):
+        """Test stripping Python code fences."""
+        content = "```python\ndef hello():\n    return 'world'\n```"
+        result = strip_markdown_fences(content)
+        assert result == "def hello():\n    return 'world'"
+
+    def test_strip_generic_code_fences(self):
+        """Test stripping generic code fences."""
+        content = "```\nx = 42\ny = 100\n```"
+        result = strip_markdown_fences(content)
+        assert result == "x = 42\ny = 100"
+
+    def test_no_fences_returns_unchanged(self):
+        """Test that content without fences is unchanged."""
+        content = "def hello():\n    return 'world'"
+        result = strip_markdown_fences(content)
+        assert result == content
+
+    def test_partial_fences_only_strips_if_both_present(self):
+        """Test that only complete fence pairs are stripped."""
+        # Only opening fence
+        content = "```python\ndef hello():\n    return 'world'"
+        result = strip_markdown_fences(content)
+        # Should strip opening fence since no closing
+        assert result == "def hello():\n    return 'world'"
+
+    def test_empty_content(self):
+        """Test handling of empty content."""
+        result = strip_markdown_fences("")
+        assert result == ""
+
+
+class TestWriteNewFile:
+    """Tests for write_new_file function."""
+
+    def test_write_new_file_success(self, tmp_path):
+        """Test successful file creation."""
         repo = tmp_path / "test_repo"
         repo.mkdir()
 
-        # Initialize git repo and create a file
-        subprocess.run(["git", "init"], cwd=repo, check=True, capture_output=True)
-        subprocess.run(["git", "config", "user.email", "test@example.com"], cwd=repo, check=True)
-        subprocess.run(["git", "config", "user.name", "Test User"], cwd=repo, check=True)
-
-        test_file = repo / "test.txt"
-        test_file.write_text("line 1\n")
-        subprocess.run(["git", "add", "test.txt"], cwd=repo, check=True)
-        subprocess.run(["git", "commit", "-m", "initial"], cwd=repo, check=True)
-
-        # Create a valid patch
-        patch = """--- a/test.txt
-+++ b/test.txt
-@@ -1 +1,2 @@
- line 1
-+line 2
-"""
-
-        success, output = apply_patch(str(repo), patch)
+        content = "def hello():\n    return 'world'\n"
+        success, output = write_new_file(str(repo), "utils.py", content)
 
         assert success is True
-        assert (repo / "test.txt").read_text() == "line 1\nline 2\n"
+        assert (repo / "utils.py").read_text() == content
+        assert "Created utils.py" in output
 
-    def test_apply_patch_invalid_patch(self, tmp_path):
-        """Test that invalid patches are handled."""
+    def test_write_new_file_with_subdirectory(self, tmp_path):
+        """Test file creation in subdirectory."""
         repo = tmp_path / "test_repo"
         repo.mkdir()
-        subprocess.run(["git", "init"], cwd=repo, check=True, capture_output=True)
 
-        invalid_patch = "not a valid patch"
+        content = "x = 42\n"
+        success, output = write_new_file(str(repo), "src/helpers.py", content)
 
-        success, output = apply_patch(str(repo), invalid_patch)
+        assert success is True
+        assert (repo / "src" / "helpers.py").read_text() == content
+        assert "Created src/helpers.py" in output
+
+    def test_write_new_file_already_exists(self, tmp_path):
+        """Test that existing files are not overwritten."""
+        repo = tmp_path / "test_repo"
+        repo.mkdir()
+
+        # Create the file first
+        (repo / "test.py").write_text("original content")
+
+        # Try to write it again
+        success, output = write_new_file(str(repo), "test.py", "new content")
 
         assert success is False
-        assert len(output) > 0  # Should have error message
+        assert "already exists" in output
+        assert (repo / "test.py").read_text() == "original content"
 
-    def test_apply_patch_cleans_up_temp_file(self, tmp_path):
-        """Test that temporary patch file is cleaned up."""
+    def test_write_new_file_handles_errors(self, tmp_path):
+        """Test that write errors are handled gracefully."""
+        # Try to write to invalid path
+        success, output = write_new_file("/invalid/path/that/does/not/exist", "test.py", "content")
+
+        assert success is False
+        assert "Failed to write file" in output
+
+    def test_write_new_file_strips_markdown_fences(self, tmp_path):
+        """Test that markdown code fences are automatically stripped."""
         repo = tmp_path / "test_repo"
         repo.mkdir()
-        subprocess.run(["git", "init"], cwd=repo, check=True, capture_output=True)
 
-        patch = "invalid patch"
+        # Content with markdown fences (common LLM output)
+        content_with_fences = "```python\ndef hello():\n    return 'world'\n```"
+        success, output = write_new_file(str(repo), "utils.py", content_with_fences)
 
-        # Track temp files before
-        temp_dir = Path(tempfile.gettempdir())
-        before_count = len(list(temp_dir.glob("*.patch")))
-
-        apply_patch(str(repo), patch)
-
-        # Temp file should be cleaned up
-        after_count = len(list(temp_dir.glob("*.patch")))
-        assert after_count <= before_count
+        assert success is True
+        # File should NOT contain the markdown fences
+        written_content = (repo / "utils.py").read_text()
+        assert written_content == "def hello():\n    return 'world'"
+        assert "```" not in written_content
 
 
 class TestFormatLintAndTest:
@@ -239,64 +277,65 @@ class TestMakePatchAndTest:
     """Tests for make_patch_and_test function."""
 
     @patch("adl_agent.harness.repo_snapshot")
-    @patch("adl_agent.harness.apply_patch")
+    @patch("adl_agent.harness.write_new_file")
     @patch("adl_agent.harness.format_lint_and_test")
     def test_make_patch_and_test_success(
-        self, mock_format_lint, mock_apply, mock_snapshot
+        self, mock_format_lint, mock_write, mock_snapshot
     ):
-        """Test successful patch generation and testing."""
+        """Test successful file generation and testing."""
         mock_snapshot.return_value = "repo state"
-        mock_apply.return_value = (True, "patch applied")
+        mock_write.return_value = (True, "file created")
         mock_format_lint.return_value = (True, "all tests passed")
 
         # Mock agent
         mock_agent = Mock()
         mock_result = Mock()
-        mock_result.patch = "diff content"
-        mock_result.explanation = "Added feature X"
+        mock_result.filename = "utils.py"
+        mock_result.content = "def hello():\n    return 'world'\n"
+        mock_result.explanation = "Added utility functions"
         mock_result.risk_level = "low"
         mock_agent.return_value = mock_result
 
-        patch, tests_passed, output = make_patch_and_test(
-            task="Add feature X",
+        content, tests_passed, output = make_patch_and_test(
+            task="Add utility functions",
             repo_path="/fake/repo",
-            allow_globs=["src/**/*.py"],
+            allow_globs=["*.py"],
             agent=mock_agent,
             dry_run=False,
         )
 
-        assert patch == "diff content"
+        assert content == "def hello():\n    return 'world'\n"
         assert tests_passed is True
-        assert "Added feature X" in output
+        assert "Added utility functions" in output
         assert "low" in output
         assert "all tests passed" in output
 
         # Verify agent was called correctly
         mock_agent.assert_called_once_with(
-            task="Add feature X",
+            task="Add utility functions",
             repo_state="repo state",
-            allowed_patterns=["src/**/*.py"],
+            allowed_patterns=["*.py"],
         )
 
     @patch("adl_agent.harness.repo_snapshot")
     def test_make_patch_and_test_agent_fails(self, mock_snapshot):
-        """Test when agent fails to generate patch."""
+        """Test when agent fails to generate file."""
         mock_snapshot.return_value = "repo state"
 
         mock_agent = Mock()
-        mock_agent.side_effect = ValueError("Patch modifies disallowed files")
+        mock_agent.side_effect = ValueError("Filename does not match allowed patterns")
 
-        patch, tests_passed, output = make_patch_and_test(
+        content, tests_passed, output = make_patch_and_test(
             task="Bad task",
             repo_path="/fake/repo",
             allow_globs=["src/**/*.py"],
             agent=mock_agent,
         )
 
-        assert patch == ""
+        assert content == ""
         assert tests_passed is False
-        assert "Agent failed to generate patch" in output
-        assert "disallowed files" in output
+        assert "Agent failed to generate file" in output
+        assert "allowed patterns" in output
 
     @patch("adl_agent.harness.repo_snapshot")
     def test_make_patch_and_test_dry_run(self, mock_snapshot):
@@ -305,77 +344,80 @@ class TestMakePatchAndTest:
 
         mock_agent = Mock()
         mock_result = Mock()
-        mock_result.patch = "diff content"
-        mock_result.explanation = "Would add feature"
+        mock_result.filename = "test.py"
+        mock_result.content = "x = 42\n"
+        mock_result.explanation = "Would add test file"
         mock_result.risk_level = "medium"
         mock_agent.return_value = mock_result
 
-        patch, tests_passed, output = make_patch_and_test(
-            task="Add feature",
+        content, tests_passed, output = make_patch_and_test(
+            task="Add test file",
             repo_path="/fake/repo",
-            allow_globs=["src/**/*.py"],
+            allow_globs=["*.py"],
             agent=mock_agent,
             dry_run=True,
         )
 
-        assert patch == "diff content"
+        assert content == "x = 42\n"
         assert tests_passed is False  # Always False in dry run
         assert "DRY RUN" in output
-        assert "Would add feature" in output
+        assert "Would add test file" in output
         assert "medium" in output
 
     @patch("adl_agent.harness.repo_snapshot")
-    @patch("adl_agent.harness.apply_patch")
-    def test_make_patch_and_test_patch_apply_fails(self, mock_apply, mock_snapshot):
-        """Test when patch fails to apply."""
+    @patch("adl_agent.harness.write_new_file")
+    def test_make_patch_and_test_write_fails(self, mock_write, mock_snapshot):
+        """Test when file write fails."""
         mock_snapshot.return_value = "repo state"
-        mock_apply.return_value = (False, "patch does not apply")
+        mock_write.return_value = (False, "file already exists")
 
         mock_agent = Mock()
         mock_result = Mock()
-        mock_result.patch = "bad diff"
-        mock_result.explanation = "Added feature"
+        mock_result.filename = "existing.py"
+        mock_result.content = "new content"
+        mock_result.explanation = "Added file"
         mock_result.risk_level = "low"
         mock_agent.return_value = mock_result
 
-        patch, tests_passed, output = make_patch_and_test(
-            task="Add feature",
+        content, tests_passed, output = make_patch_and_test(
+            task="Add file",
             repo_path="/fake/repo",
-            allow_globs=["src/**/*.py"],
+            allow_globs=["*.py"],
             agent=mock_agent,
         )
 
-        assert patch == "bad diff"
+        assert content == "new content"
         assert tests_passed is False
-        assert "Failed to apply patch" in output
-        assert "patch does not apply" in output
+        assert "Failed to write file" in output
+        assert "already exists" in output
 
     @patch("adl_agent.harness.repo_snapshot")
-    @patch("adl_agent.harness.apply_patch")
+    @patch("adl_agent.harness.write_new_file")
     @patch("adl_agent.harness.format_lint_and_test")
     def test_make_patch_and_test_tests_fail(
-        self, mock_format_lint, mock_apply, mock_snapshot
+        self, mock_format_lint, mock_write, mock_snapshot
     ):
-        """Test when tests fail after applying patch."""
+        """Test when tests fail after writing file."""
         mock_snapshot.return_value = "repo state"
-        mock_apply.return_value = (True, "patch applied")
+        mock_write.return_value = (True, "file created")
         mock_format_lint.return_value = (False, "2 tests failed")
 
         mock_agent = Mock()
         mock_result = Mock()
-        mock_result.patch = "diff content"
-        mock_result.explanation = "Added feature"
+        mock_result.filename = "broken.py"
+        mock_result.content = "def broken():\n    raise Exception()\n"
+        mock_result.explanation = "Added broken function"
         mock_result.risk_level = "high"
         mock_agent.return_value = mock_result
 
-        patch, tests_passed, output = make_patch_and_test(
-            task="Add feature",
+        content, tests_passed, output = make_patch_and_test(
+            task="Add function",
             repo_path="/fake/repo",
-            allow_globs=["src/**/*.py"],
+            allow_globs=["*.py"],
             agent=mock_agent,
         )
 
-        assert patch == "diff content"
+        assert content == "def broken():\n    raise Exception()\n"
         assert tests_passed is False
         assert "2 tests failed" in output
         assert "high" in output
