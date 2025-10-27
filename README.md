@@ -62,7 +62,37 @@ tests/                           # Framework tests
 
 ## Examples
 
-### 1. Coding Agent - Agent-in-the-Loop
+### 1. Influencer Assistant - Interactive Demo with DeepEval
+
+Demonstrates:
+- Extending `BaseAgent` for content ideation
+- DSPy prompt optimization (teleprompting)
+- **DeepEval quality metrics** (relevancy, faithfulness, pillar adherence)
+- **Interactive Streamlit dashboard** (best for screenshots!)
+
+**Try the interactive demo:**
+```bash
+cd examples/influencer_assistant
+pip install -e '.[dev]'
+
+# Launch dashboard
+streamlit run dashboard/app.py
+
+# The dashboard shows:
+# - Creator profile visualization
+# - AI-powered video idea generation
+# - Langfuse tracing in action
+```
+
+**Run quality metrics:**
+```bash
+pytest tests/ -v   # Unit tests
+pytest evals/ -v   # DeepEval quality metrics
+```
+
+[Full documentation →](examples/influencer_assistant/README.md)
+
+### 2. Coding Agent - Agent-in-the-Loop
 
 Demonstrates:
 - Extending `BaseAgent` for code generation
@@ -70,48 +100,7 @@ Demonstrates:
 - Git integration + PR workflow
 - Operational quality gates (lint, tests, type-check)
 
-**Try the demo:**
-```bash
-cd examples/coding_agent
-pip install -e .
-
-# Setup demo repo (first time only)
-cd demo && ./setup_demo.sh && cd ..
-
-# Run on the included sample project (creates a new file)
-adl-agent "Create utils.py with a function to format numbers with commas" \
-  --repo demo/sample_project \
-  --allow "*.py"
-
-# Or use on your own repo
-adl-agent "Add docstrings to public functions" \
-  --repo /path/to/your/repo \
-  --allow "src/**/*.py"
-```
-
 [Full documentation →](examples/coding_agent/README.md)
-
-### 2. Influencer Assistant - DeepEval Showcase
-
-Demonstrates:
-- Extending `BaseAgent` for content ideation
-- DSPy prompt optimization (teleprompting)
-- **DeepEval quality metrics** (relevancy, faithfulness, pillar adherence)
-- Streamlit dashboard
-
-```bash
-cd examples/influencer_assistant
-pip install -e '.[dev]'
-
-# Run tests + evals
-pytest tests/ -v
-pytest evals/ -v
-
-# Launch dashboard
-streamlit run dashboard/app.py
-```
-
-[Full documentation →](examples/influencer_assistant/README.md)
 
 ---
 
