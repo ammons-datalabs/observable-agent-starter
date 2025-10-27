@@ -1,13 +1,21 @@
 """DeepEval quality metrics for video idea generation."""
 
 import os
+from pathlib import Path
 import pytest
 from deepeval.metrics import AnswerRelevancyMetric, FaithfulnessMetric
 from deepeval.test_case import LLMTestCase
 from deepeval import assert_test
+from dotenv import load_dotenv
 
 from influencer_assistant.dspy.video_ideas import VideoIdeaGenerator
 from influencer_assistant.profile import InfluencerProfile
+
+# Load .env from project root
+project_root = Path(__file__).parent.parent.parent.parent
+env_file = project_root / ".env"
+if env_file.exists():
+    load_dotenv(env_file)
 
 pytestmark = pytest.mark.skipif(
     not os.getenv("OPENAI_API_KEY"),
@@ -25,8 +33,23 @@ def test_profile():
     return InfluencerProfile(
         creator_id="test-001",
         handle="@testcreator",
+        name="Test Creator",
+        description="A tech creator focused on productivity and AI tools",
         niche="Tech & Productivity",
-        content_pillars=["AI Tools", "Productivity", "Creator Economy"]
+        content_pillars=["AI Tools", "Productivity", "Creator Economy"],
+        goals={
+            "primary": "Reach 100k subscribers",
+            "secondary": ["Build a course", "Launch a community"]
+        },
+        audience={
+            "persona": "Tech-savvy professionals and creators",
+            "pain_points": ["Time management", "Tool overwhelm"],
+            "desired_outcomes": ["Work smarter", "Build audience"]
+        },
+        publishing_cadence={
+            "planned_per_week": 3,
+            "actual_last_28_days": 10
+        }
     )
 
 
