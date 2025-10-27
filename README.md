@@ -78,8 +78,8 @@ pip install -e .
 # Setup demo repo (first time only)
 cd demo && ./setup_demo.sh && cd ..
 
-# Run on the included sample project
-adl-agent "Add a multiply function with docstring" \
+# Run on the included sample project (creates a new file)
+adl-agent "Create utils.py with a function to format numbers with commas" \
   --repo demo/sample_project \
   --allow "*.py"
 

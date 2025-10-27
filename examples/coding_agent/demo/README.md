@@ -17,8 +17,8 @@ cd ..
 ## Run the Demo
 
 ```bash
-# Simple task: Add multiply function with docstring
-adl-agent "Add a multiply function with docstring to calculator.py" \
+# Simple task: Create a new utility module
+adl-agent "Create utils.py with a function to format numbers with commas" \
   --repo demo/sample_project \
   --allow "*.py"
 
@@ -30,6 +30,9 @@ adl-agent "Add a multiply function with docstring to calculator.py" \
 # 5. Run pytest tests
 # 6. Create a commit if tests pass
 ```
+
+**Note:** Creating new files is more reliable than modifying existing code,
+as it doesn't require perfect unified diff line number calculations.
 
 ## What to Expect
 
