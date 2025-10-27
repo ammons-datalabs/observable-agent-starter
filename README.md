@@ -100,6 +100,12 @@ Demonstrates:
 - Git integration + PR workflow
 - Operational quality gates (lint, tests, type-check)
 
+**Example: AI-powered file creation with quality gates**
+
+![Coding Agent Demo](examples/coding_agent/CodingAgentInAction.png)
+
+The agent generates new files, automatically strips markdown formatting, runs linting and tests, and creates git commits.
+
 [Full documentation →](examples/coding_agent/README.md)
 
 ---
