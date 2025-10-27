@@ -1,60 +1,65 @@
 graph TB
-    subgraph "Development"
-        Code[("👨‍💻 Agent Code<br/>(DSPy/LangGraph)")]
-        Prompts[("📝 Prompt Templates<br/>(Jinja2)")]
-        Tests[("🧪 Unit Tests<br/>(pytest)")]
+    subgraph "Core Framework"
+        BaseAgent[("🧩 BaseAgent<br/>Config + Tracing")]
+        Config[("⚙️ Config Module<br/>LM + Langfuse")]
+    end
+
+    subgraph "Example 1: Coding Agent"
+        CodingAgent["🤖 CodeAgent<br/>DSPy ChainOfThought"]
+        GitWorkflow["📝 Git Integration<br/>Branch • Commit • PR"]
+        QualityGates["✅ Quality Gates<br/>Ruff • pytest"]
+        CLI1["💻 CLI: adl-agent<br/>File Creation"]
+    end
+
+    subgraph "Example 2: Influencer Assistant"
+        InfluencerAgent["🎨 VideoIdeaGenerator<br/>DSPy Signatures"]
+        ProfileModel["👤 Profile Models<br/>Pydantic"]
+        Dashboard["📊 Streamlit Dashboard<br/>Interactive Demo"]
     end
 
     subgraph "Observability Layer"
         Langfuse[("🔍 Langfuse<br/>Tracing & Monitoring")]
     end
 
-    subgraph "Agent Runtime"
-        Agent["🤖 ExampleAgent<br/>Smart Routing"]
-        Policy["📋 Fallback Policy<br/>Guardrails"]
-        MCP["🔌 MCP Adapters<br/>Tool Calling"]
-    end
-
-    subgraph "Deployment"
-        CLI["💻 CLI Interface<br/>python -m agents.example"]
-        API["🚀 FastAPI Server<br/>Production HTTP"]
-    end
-
     subgraph "Quality Assurance"
-        DeepEval[("📊 DeepEval<br/>LLM Metrics")]
-        CI["⚙️ GitHub Actions<br/>Lint • Type • Test"]
+        UnitTests[("🧪 Unit Tests<br/>49+ pytest tests")]
+        DeepEval[("📊 DeepEval Metrics<br/>Relevancy • Faithfulness")]
+        CI["⚙️ GitHub Actions<br/>Lint • Type • Test • Evals"]
     end
 
-    %% Development Flow
-    Code --> Agent
-    Prompts --> Agent
-    Tests --> CI
+    %% Framework Flow
+    BaseAgent --> Config
+    Config --> Langfuse
 
-    %% Runtime Flow
-    Agent --> Policy
-    Agent --> MCP
-    Agent --> CLI
-    Agent --> API
+    %% Coding Agent Flow
+    BaseAgent -.extends.-> CodingAgent
+    CodingAgent --> GitWorkflow
+    CodingAgent --> QualityGates
+    CodingAgent --> CLI1
+    CodingAgent -.traces.-> Langfuse
 
-    %% Observability Flow
-    Agent -.traces.-> Langfuse
-    CLI -.traces.-> Langfuse
-    API -.traces.-> Langfuse
+    %% Influencer Agent Flow
+    BaseAgent -.extends.-> InfluencerAgent
+    InfluencerAgent --> ProfileModel
+    InfluencerAgent --> Dashboard
+    InfluencerAgent -.traces.-> Langfuse
 
     %% Quality Flow
-    Agent --> DeepEval
+    CodingAgent --> UnitTests
+    InfluencerAgent --> UnitTests
+    InfluencerAgent --> DeepEval
+    UnitTests --> CI
     DeepEval --> CI
-    CI --> Code
 
     %% Styling
-    classDef dev fill:#e1f5ff,stroke:#01579b,stroke-width:2px
-    classDef obs fill:#fff3e0,stroke:#e65100,stroke-width:2px
-    classDef runtime fill:#f3e5f5,stroke:#4a148c,stroke-width:2px
-    classDef deploy fill:#e8f5e9,stroke:#1b5e20,stroke-width:2px
+    classDef core fill:#e1f5ff,stroke:#01579b,stroke-width:2px
+    classDef coding fill:#f3e5f5,stroke:#4a148c,stroke-width:2px
+    classDef influencer fill:#fff3e0,stroke:#e65100,stroke-width:2px
+    classDef obs fill:#e8f5e9,stroke:#1b5e20,stroke-width:2px
     classDef qa fill:#fce4ec,stroke:#880e4f,stroke-width:2px
 
-    class Code,Prompts,Tests dev
+    class BaseAgent,Config core
+    class CodingAgent,GitWorkflow,QualityGates,CLI1 coding
+    class InfluencerAgent,ProfileModel,Dashboard influencer
     class Langfuse obs
-    class Agent,Policy,MCP runtime
-    class CLI,API deploy
-    class DeepEval,CI qa
+    class UnitTests,DeepEval,CI qa
