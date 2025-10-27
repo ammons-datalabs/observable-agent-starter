@@ -1,6 +1,8 @@
 # Observable Agent Starter
 
-[![Tests](https://github.com/ammons-datalabs/observable-agent-starter/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/ammons-datalabs/observable-agent-starter/actions/workflows/ci.yml)
+![CI](https://github.com/ammons-datalabs/observable-agent-starter/actions/workflows/ci.yml/badge.svg?branch=main)
+![Tests: 49+](https://img.shields.io/badge/tests-49%2B-blue)
+![License: MIT](https://img.shields.io/badge/license-MIT-blue)
 
 **Production-ready DSPy agent framework with Langfuse observability, automated testing, and deployment templates.**
 
