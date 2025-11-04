@@ -1,7 +1,7 @@
 # Observable Agent Starter
 
 ![CI](https://github.com/ammons-datalabs/observable-agent-starter/actions/workflows/ci.yml/badge.svg?branch=main)
-![Tests: 49+](https://img.shields.io/badge/tests-49%2B-blue)
+![Tests: 79+](https://img.shields.io/badge/tests-79%2B-blue)
 ![License: MIT](https://img.shields.io/badge/license-MIT-blue)
 
 **Production-ready DSPy agent framework with Langfuse observability, automated testing, and deployment templates.**
@@ -158,7 +158,7 @@ class MyAgent(dspy.Module, BaseAgent):
 **For Production:**
 - Observable by default (Langfuse traces)
 - Testable (pytest + CI)
-- Deployable (FastAPI patterns in examples)
+- Extensible (ready for your deployment layer)
 
 **For Synthenova/Employer Showcase:**
 - ✅ Agent-in-the-loop pattern (coding agent)
