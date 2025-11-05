@@ -1,11 +1,11 @@
 # Observable Agent Starter
 
 ![CI](https://github.com/ammons-datalabs/observable-agent-starter/actions/workflows/ci.yml/badge.svg?branch=main)
-![Tests: 79+](https://img.shields.io/badge/tests-79%2B-blue)
+![Tests: 72](https://img.shields.io/badge/tests-72-blue)
 ![Coverage](https://codecov.io/gh/ammons-datalabs/observable-agent-starter/branch/main/graph/badge.svg)
 ![License: MIT](https://img.shields.io/badge/license-MIT-blue)
 
-**Production-ready DSPy agent framework with Langfuse observability, automated testing, and deployment templates.**
+**Production-ready DSPy agent framework with Langfuse observability and automated testing.**
 
 ## What This Starter Gives You
 
@@ -24,6 +24,19 @@
 - **pytest** - Testing framework
 - **DeepEval** - LLM quality metrics (influencer example)
 - **GitHub Actions** - CI/CD pipeline
+
+## Architecture
+
+The framework uses a minimal composition pattern for clean dependency injection:
+
+![Core Framework Architecture](docs/architecture-core.png)
+
+The core provides:
+- `create_observability()` - Factory function for setup
+- `ObservabilityProvider` - Injected into agents for tracing
+- `Config Module` - LM and Langfuse configuration
+
+[Full architecture documentation →](docs/architecture.md)
 
 ---
 
@@ -205,6 +218,24 @@ agent = MyAgent(observability=observability)
    ```
 3. Open in Codespaces (or clone locally). CI will run automatically on each PR.
 4. Add `LANGFUSE_*` keys as repo or Codespaces secrets if you want tracing enabled.
+
+---
+
+## Roadmap
+
+### v0.3.0 (Current)
+- Composition-based ObservabilityProvider pattern
+- Pre-commit hooks and code formatting
+- Comprehensive documentation (architecture, contributing, how-to guides)
+- Security scanning (Bandit, pip-audit)
+
+### Future Enhancements
+- **Demo Assets** - Add animated GIF showing agent execution + Langfuse tracing
+- **More Examples** - Additional agent patterns (RAG, tool use, multi-agent)
+- **Testing Utilities** - Helper fixtures and mocks for agent testing
+- **Deployment Templates** - Docker, AWS Lambda, and Cloud Run examples
+
+See [GitHub Issues](https://github.com/ammons-datalabs/observable-agent-starter/issues) for detailed roadmap and feature requests.
 
 ---
 
