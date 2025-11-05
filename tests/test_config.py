@@ -194,7 +194,7 @@ def test_configure_langfuse_with_custom_host(monkeypatch):
     client = config.configure_langfuse_from_env()
 
     assert client is not None
-    assert client.host == "https://custom.langfuse.com"
+    assert client.host == "https://custom.langfuse.com"  # type: ignore[attr-defined]
 
 
 def test_configure_langfuse_uses_default_host(monkeypatch):
@@ -212,7 +212,7 @@ def test_configure_langfuse_uses_default_host(monkeypatch):
     client = config.configure_langfuse_from_env()
 
     assert client is not None
-    assert client.host == "https://cloud.langfuse.com"
+    assert client.host == "https://cloud.langfuse.com"  # type: ignore[attr-defined]
 
 
 def test_configure_langfuse_is_singleton(monkeypatch):
