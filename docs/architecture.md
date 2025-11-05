@@ -9,7 +9,7 @@ Observable Agent Starter is built on a minimal, extensible foundation:
 ```
 Core Framework (src/observable_agent_starter/)
     ↓
-BaseAgent Pattern (extend with your logic)
+Composition Pattern (inject ObservabilityProvider)
     ↓
 Example Implementations (coding_agent, influencer_assistant)
     ↓
@@ -20,20 +20,20 @@ Observability & Quality (Langfuse, pytest, DeepEval)
 
 ## Core Components
 
-### 1. BaseAgent
+### 1. ObservabilityProvider
 
-The `BaseAgent` class provides the foundation for all agent implementations:
+The `ObservabilityProvider` class provides observability capabilities via composition:
 
 **Location:** `src/observable_agent_starter/base_agent.py`
 
 **Key Features:**
-- Automatic LM configuration from environment variables
 - Langfuse tracing integration via `log_generation()`
 - Logging infrastructure
-- Thin interface - no opinion on agent logic
+- Factory function for setup with optional LM configuration
+- Dependency injection pattern for better testability
 
 **Design Philosophy:**
-BaseAgent is intentionally minimal. It handles configuration and observability, but doesn't dictate how you build your agent. You provide the DSPy signatures, modules, and business logic.
+ObservabilityProvider is intentionally minimal and uses composition instead of inheritance. It's injected as a dependency into your agents, making the observability layer explicit and easy to test. You provide the DSPy signatures, modules, and business logic.
 
 ### 2. Configuration Module
 
@@ -50,20 +50,20 @@ BaseAgent is intentionally minimal. It handles configuration and observability, 
 - `configure_langfuse_from_env()` - Initializes Langfuse client
 - `log_langfuse_generation()` - Logs generation events
 
-## BaseAgent Pattern
+## Composition Pattern
 
-### How to Extend
+### How to Build Agents
 
-Every agent inherits from both `dspy.Module` and `BaseAgent`:
+Every agent uses composition with `ObservabilityProvider`:
 
 ```python
-from observable_agent_starter import BaseAgent
+from observable_agent_starter import ObservabilityProvider, create_observability
 import dspy
 
-class MyAgent(dspy.Module, BaseAgent):
-    def __init__(self):
-        dspy.Module.__init__(self)
-        BaseAgent.__init__(self, observation_name="my-agent")
+class MyAgent(dspy.Module):
+    def __init__(self, observability: ObservabilityProvider):
+        super().__init__()
+        self.observability = observability
 
         # Your DSPy signatures and modules
         self.predict = dspy.ChainOfThought(MySignature)
@@ -72,30 +72,34 @@ class MyAgent(dspy.Module, BaseAgent):
         # Your agent logic
         result = self.predict(**kwargs)
 
-        # Log to Langfuse (optional)
-        self.log_generation(
+        # Log to Langfuse
+        self.observability.log_generation(
             input_data=kwargs,
             output_data={"result": result.output}
         )
 
         return result
+
+# Usage with factory function
+observability = create_observability("my-agent")
+agent = MyAgent(observability=observability)
 ```
 
-### What BaseAgent Provides
+### What ObservabilityProvider Provides
 
-1. **LM Configuration:**
-   - Reads `OPENAI_API_KEY`, `OPENAI_MODEL`, etc.
-   - Configures DSPy automatically
-   - Supports multiple DSPy versions
-
-2. **Tracing Helpers:**
-   - `self.log_generation()` - Log to Langfuse
+1. **Tracing Helpers:**
+   - `log_generation()` - Log to Langfuse
    - Automatic observation naming
    - Metadata support
 
-3. **Logging:**
+2. **Logging:**
    - Configured Python logger
    - Consistent log formatting
+
+3. **Factory Function:**
+   - `create_observability()` handles LM configuration
+   - Reads `OPENAI_API_KEY`, `OPENAI_MODEL`, etc.
+   - Optional LM setup via `configure_lm` parameter
 
 ### What You Provide
 
@@ -182,7 +186,7 @@ export LANGFUSE_HOST=https://cloud.langfuse.com  # optional
 
 **Usage in Agents:**
 ```python
-self.log_generation(
+self.observability.log_generation(
     input_data={"query": user_input},
     output_data={"response": agent_response},
     metadata={"version": "1.0", "model": "gpt-4"}
@@ -200,7 +204,7 @@ self.log_generation(
 
 1. **Meaningful Observation Names:**
    ```python
-   BaseAgent.__init__(self, observation_name="video-ideas-generator")
+   observability = create_observability("video-ideas-generator")
    ```
 
 2. **Structured Metadata:**
@@ -217,7 +221,7 @@ self.log_generation(
    try:
        result = self.predict(...)
    except Exception as e:
-       self.log_generation(
+       self.observability.log_generation(
            input_data=inputs,
            output_data={"error": str(e)},
            metadata={"error_type": type(e).__name__}
@@ -265,7 +269,7 @@ self.log_generation(
 ### Adding New Agents
 
 1. Create directory: `examples/your-agent/`
-2. Implement agent extending BaseAgent
+2. Implement agent using composition with ObservabilityProvider
 3. Add tests in `examples/your-agent/tests/`
 4. Optional: Add evals in `examples/your-agent/evals/`
 5. Update README with your example
@@ -290,14 +294,16 @@ class CustomMetric(BaseMetric):
 
 ### Custom Observability
 
-Extend `BaseAgent.log_generation()` or create your own:
+Extend observability logging or create your own helper functions:
 
 ```python
-def log_custom_event(self, event_type: str, data: dict):
+from observable_agent_starter.config import configure_langfuse_from_env
+
+def log_custom_event(observability: ObservabilityProvider, event_type: str, data: dict):
     client = configure_langfuse_from_env()
     if client:
         client.log_event(
-            name=f"{self.observation_name}-{event_type}",
+            name=f"{observability.observation_name}-{event_type}",
             data=data
         )
 ```
