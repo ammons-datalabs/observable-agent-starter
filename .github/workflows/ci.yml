@@ -20,8 +20,15 @@ jobs:
       - name: Pyright
         uses: jakebailey/pyright-action@v2
 
-      - name: Core Tests
-        run: pytest tests/ -v
+      - name: Core Tests with Coverage
+        run: pytest tests/ -v --cov=observable_agent_starter --cov-report=xml --cov-report=term-missing
+
+      - name: Upload Coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          file: ./coverage.xml
+          flags: core
+          fail_ci_if_error: false
 
   coding-agent:
     name: Coding Agent Example

@@ -24,8 +24,10 @@ packages = ["src/observable_agent_starter"]
 [project.optional-dependencies]
 dev = [
   "pytest",
+  "pytest-cov",
   "pyright",
-  "ruff"
+  "ruff",
+  "pre-commit"
 ]
 examples = [
   "pydantic>=2.6",
@@ -49,3 +51,23 @@ src = [
 
 [tool.pytest.ini_options]
 addopts = "-q"
+
+[tool.coverage.run]
+source = ["src"]
+omit = [
+  "*/tests/*",
+  "*/__pycache__/*",
+  "*/.venv/*"
+]
+
+[tool.coverage.report]
+fail_under = 85
+show_missing = true
+exclude_lines = [
+  "pragma: no cover",
+  "def __repr__",
+  "raise AssertionError",
+  "raise NotImplementedError",
+  "if __name__ == .__main__.:",
+  "if TYPE_CHECKING:",
+]
