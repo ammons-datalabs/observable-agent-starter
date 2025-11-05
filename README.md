@@ -61,7 +61,7 @@ make test
 
 ```
 src/observable_agent_starter/   # Core framework
-  ├── base_agent.py              # Thin base with config + tracing
+  ├── observability.py           # ObservabilityProvider with composition pattern
   ├── config.py                  # LM + Langfuse configuration
   └── __init__.py
 

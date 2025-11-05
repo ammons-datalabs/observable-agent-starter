@@ -22,7 +22,7 @@ The core provides:
 
 The `ObservabilityProvider` class provides observability capabilities via composition:
 
-**Location:** `src/observable_agent_starter/base_agent.py`
+**Location:** `src/observable_agent_starter/observability.py`
 
 **Key Features:**
 - Langfuse tracing integration via `log_generation()`

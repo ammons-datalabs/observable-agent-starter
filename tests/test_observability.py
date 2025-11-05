@@ -64,7 +64,7 @@ def test_create_observability_handles_missing_lm(monkeypatch):
 
 def test_log_generation_helper(monkeypatch):
     """ObservabilityProvider.log_generation should call log_langfuse_generation."""
-    import observable_agent_starter.base_agent as base_agent_module
+    import observable_agent_starter.observability as observability_module
 
     calls = []
 
@@ -78,7 +78,7 @@ def test_log_generation_helper(monkeypatch):
             }
         )
 
-    monkeypatch.setattr(base_agent_module, "log_langfuse_generation", mock_log)
+    monkeypatch.setattr(observability_module, "log_langfuse_generation", mock_log)
 
     provider = ObservabilityProvider(observation_name="test-agent")
     provider.log_generation(
