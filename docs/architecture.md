@@ -16,16 +16,6 @@ The core provides:
 - **Config Module** - LM and Langfuse configuration
 - **Langfuse Integration** - External tracing service
 
-### Agent Implementation Pattern
-
-![Agent Pattern](architecture-agents.png)
-
-Agents use composition:
-- Create observability instance via `create_observability()`
-- Inject into agent constructor
-- Use `observability.log_generation()` for tracing
-- Examples show production-ready patterns
-
 ## Core Components
 
 ### 1. ObservabilityProvider
