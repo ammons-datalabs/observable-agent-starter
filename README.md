@@ -1,16 +1,17 @@
 # Observable Agent Starter
 
 ![CI](https://github.com/ammons-datalabs/observable-agent-starter/actions/workflows/ci.yml/badge.svg?branch=main)
-![Tests: 49+](https://img.shields.io/badge/tests-49%2B-blue)
+![Tests: 72](https://img.shields.io/badge/tests-72-blue)
+![Coverage](https://codecov.io/gh/ammons-datalabs/observable-agent-starter/branch/main/graph/badge.svg)
 ![License: MIT](https://img.shields.io/badge/license-MIT-blue)
 
-**Production-ready DSPy agent framework with Langfuse observability, automated testing, and deployment templates.**
+**Production-ready DSPy agent framework with Langfuse observability and automated testing.**
 
 ## What This Starter Gives You
 
 | Component | What | Where |
 |-----------|------|-------|
-| **Base Framework** | Thin `BaseAgent` with config + tracing | `src/observable_agent_starter/` |
+| **Base Framework** | `ObservabilityProvider` with config + tracing | `src/observable_agent_starter/` |
 | **Observability** | Langfuse integration | Auto-configured via env vars |
 | **Testing** | pytest + CI/CD | `tests/` + GitHub Actions |
 | **Examples** | Coding agent + Influencer assistant | `examples/` |
@@ -23,6 +24,19 @@
 - **pytest** - Testing framework
 - **DeepEval** - LLM quality metrics (influencer example)
 - **GitHub Actions** - CI/CD pipeline
+
+## Architecture
+
+The framework uses a minimal composition pattern for clean dependency injection:
+
+![Core Framework Architecture](docs/architecture-core.png)
+
+The core provides:
+- `create_observability()` - Factory function for setup
+- `ObservabilityProvider` - Injected into agents for tracing
+- `Config Module` - LM and Langfuse configuration
+
+[Full architecture documentation →](docs/architecture.md)
 
 ---
 
@@ -47,7 +61,7 @@ make test
 
 ```
 src/observable_agent_starter/   # Core framework
-  ├── base_agent.py              # Thin base with config + tracing
+  ├── observability.py           # ObservabilityProvider with composition pattern
   ├── config.py                  # LM + Langfuse configuration
   └── __init__.py
 
@@ -56,7 +70,7 @@ examples/                        # Example implementations
   └── influencer_assistant/      # Content ideation with DeepEval
 
 tests/                           # Framework tests
-  ├── test_base_agent.py
+  ├── test_observability.py
   └── test_config.py
 ```
 
@@ -67,7 +81,7 @@ tests/                           # Framework tests
 ### 1. Influencer Assistant - Interactive Demo with DeepEval
 
 Demonstrates:
-- Extending `BaseAgent` for content ideation
+- Composition pattern with `ObservabilityProvider`
 - DSPy prompt optimization (teleprompting)
 - **DeepEval quality metrics** (relevancy, faithfulness, pillar adherence)
 - **Interactive Streamlit dashboard** (best for screenshots!)
@@ -97,7 +111,7 @@ pytest evals/ -v   # DeepEval quality metrics
 ### 2. Coding Agent - Agent-in-the-Loop
 
 Demonstrates:
-- Extending `BaseAgent` for code generation
+- Composition pattern with `ObservabilityProvider`
 - DSPy Chain-of-Thought with guardrails
 - Git integration + PR workflow
 - Operational quality gates (lint, tests, type-check)
@@ -112,18 +126,18 @@ The agent generates new files, automatically strips markdown formatting, runs li
 
 ---
 
-## Extending BaseAgent
+## Building Agents with Composition
 
 ```python
-from observable_agent_starter import BaseAgent
+from observable_agent_starter import ObservabilityProvider, create_observability
 import dspy
 
-class MyAgent(dspy.Module, BaseAgent):
+class MyAgent(dspy.Module):
     """Your custom agent."""
 
-    def __init__(self):
-        dspy.Module.__init__(self)
-        BaseAgent.__init__(self, observation_name="my-agent")
+    def __init__(self, observability: ObservabilityProvider):
+        super().__init__()
+        self.observability = observability
 
         # Your DSPy signatures, modules, etc.
         self.predict = dspy.ChainOfThought(MySignature)
@@ -133,18 +147,22 @@ class MyAgent(dspy.Module, BaseAgent):
         result = self.predict(**kwargs)
 
         # Log to Langfuse
-        self.log_generation(
+        self.observability.log_generation(
             input_data=kwargs,
             output_data={"result": result.output}
         )
 
         return result
+
+# Usage
+observability = create_observability("my-agent")
+agent = MyAgent(observability=observability)
 ```
 
-**BaseAgent provides:**
-- Automatic LM configuration from `OPENAI_*` env vars
-- Langfuse tracing helper (`self.log_generation()`)
+**ObservabilityProvider provides:**
+- Langfuse tracing via `log_generation()`
 - Logging infrastructure
+- Optional LM configuration via `create_observability()`
 
 **You provide:**
 - DSPy signatures and modules
@@ -158,12 +176,31 @@ class MyAgent(dspy.Module, BaseAgent):
 **For Production:**
 - Observable by default (Langfuse traces)
 - Testable (pytest + CI)
-- Deployable (FastAPI patterns in examples)
+- Extensible (ready for your deployment layer)
 
 **For Synthenova/Employer Showcase:**
 - ✅ Agent-in-the-loop pattern (coding agent)
 - ✅ Eval discipline (influencer DeepEval)
 - ✅ Observability-first design (Langfuse)
+
+---
+
+## Documentation
+
+### Quick Links
+
+- [Architecture Overview](docs/architecture.md) - System design and components
+- [How to Build Agents](docs/how-to/extend-observability-provider.md) - Step-by-step agent creation guide
+- [Contributing Guidelines](CONTRIBUTING.md) - Development workflow and standards
+- [Code of Conduct](CODE_OF_CONDUCT.md) - Community guidelines
+
+### Learn More
+
+- **[Architecture](docs/architecture.md)** explains the composition pattern with ObservabilityProvider, observability layer, and quality assurance strategy
+- **[Building Agents Guide](docs/how-to/extend-observability-provider.md)** walks through creating custom agents with examples and best practices
+- **[Examples](examples/)** demonstrate production-ready patterns:
+  - [Coding Agent](examples/coding_agent/README.md) - File generation with quality gates
+  - [Influencer Assistant](examples/influencer_assistant/README.md) - Content ideation with DeepEval
 
 ---
 
@@ -181,6 +218,24 @@ class MyAgent(dspy.Module, BaseAgent):
    ```
 3. Open in Codespaces (or clone locally). CI will run automatically on each PR.
 4. Add `LANGFUSE_*` keys as repo or Codespaces secrets if you want tracing enabled.
+
+---
+
+## Roadmap
+
+### v0.3.0 (Current)
+- Composition-based ObservabilityProvider pattern
+- Pre-commit hooks and code formatting
+- Comprehensive documentation (architecture, contributing, how-to guides)
+- Security scanning (Bandit, pip-audit)
+
+### Future Enhancements
+- **Demo Assets** - Add animated GIF showing agent execution + Langfuse tracing
+- **More Examples** - Additional agent patterns (RAG, tool use, multi-agent)
+- **Testing Utilities** - Helper fixtures and mocks for agent testing
+- **Deployment Templates** - Docker, AWS Lambda, and Cloud Run examples
+
+See [GitHub Issues](https://github.com/ammons-datalabs/observable-agent-starter/issues) for detailed roadmap and feature requests.
 
 ---
 

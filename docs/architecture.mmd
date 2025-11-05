@@ -1,54 +1,60 @@
-graph TB
-    subgraph "Core Framework"
-        BaseAgent[("🧩 BaseAgent<br/>Config + Tracing")]
+graph LR
+    %% Core Framework (Left)
+    subgraph Core["Core Framework"]
+        direction TB
+        ObsProvider[("🧩 ObservabilityProvider<br/>Composition Pattern")]
         Config[("⚙️ Config Module<br/>LM + Langfuse")]
+        ObsProvider --> Config
     end
 
-    subgraph "Example 1: Coding Agent"
-        CodingAgent["🤖 CodeAgent<br/>DSPy ChainOfThought"]
-        GitWorkflow["📝 Git Integration<br/>Branch • Commit • PR"]
-        QualityGates["✅ Quality Gates<br/>Ruff • pytest"]
-        CLI1["💻 CLI: adl-agent<br/>File Creation"]
+    %% Examples (Middle)
+    subgraph Examples["Agent Examples"]
+        direction TB
+        subgraph Coding["Coding Agent (3 tests)"]
+            CodingAgent["🤖 CodeAgent<br/>DSPy ChainOfThought"]
+            GitWorkflow["📝 Git Integration<br/>Branch • Commit • PR"]
+            QualityGates["✅ Quality Gates<br/>Ruff • pytest"]
+            CLI1["💻 CLI: adl-agent<br/>File Creation"]
+        end
+
+        subgraph Influencer["Influencer Assistant (4 tests)"]
+            InfluencerAgent["🎨 VideoIdeaGenerator<br/>DSPy Signatures"]
+            ProfileModel["👤 Profile Models<br/>Pydantic"]
+            Dashboard["📊 Streamlit Dashboard<br/>Interactive Demo"]
+        end
     end
 
-    subgraph "Example 2: Influencer Assistant"
-        InfluencerAgent["🎨 VideoIdeaGenerator<br/>DSPy Signatures"]
-        ProfileModel["👤 Profile Models<br/>Pydantic"]
-        Dashboard["📊 Streamlit Dashboard<br/>Interactive Demo"]
-    end
-
-    subgraph "Observability Layer"
+    %% Observability & QA (Right)
+    subgraph ObsQA["Observability & Quality"]
+        direction TB
         Langfuse[("🔍 Langfuse<br/>Tracing & Monitoring")]
-    end
-
-    subgraph "Quality Assurance"
-        UnitTests[("🧪 Unit Tests<br/>49+ pytest tests")]
+        CoreTests[("🧪 Core Tests<br/>23 framework tests")]
+        ExampleTests[("🧪 Example Tests<br/>7 integration tests")]
         DeepEval[("📊 DeepEval Metrics<br/>Relevancy • Faithfulness")]
         CI["⚙️ GitHub Actions<br/>Lint • Type • Test • Evals"]
     end
 
-    %% Framework Flow
-    BaseAgent --> Config
-    Config --> Langfuse
+    %% Left to Right Flow: Core -> Examples -> Observability/QA
+    ObsProvider -.injected into.-> CodingAgent
+    ObsProvider -.injected into.-> InfluencerAgent
 
-    %% Coding Agent Flow
-    BaseAgent -.extends.-> CodingAgent
     CodingAgent --> GitWorkflow
     CodingAgent --> QualityGates
     CodingAgent --> CLI1
-    CodingAgent -.traces.-> Langfuse
 
-    %% Influencer Agent Flow
-    BaseAgent -.extends.-> InfluencerAgent
     InfluencerAgent --> ProfileModel
     InfluencerAgent --> Dashboard
+
+    Config --> Langfuse
+    CodingAgent -.traces.-> Langfuse
     InfluencerAgent -.traces.-> Langfuse
 
-    %% Quality Flow
-    CodingAgent --> UnitTests
-    InfluencerAgent --> UnitTests
+    CodingAgent --> ExampleTests
+    InfluencerAgent --> ExampleTests
     InfluencerAgent --> DeepEval
-    UnitTests --> CI
+    ObsProvider --> CoreTests
+    CoreTests --> CI
+    ExampleTests --> CI
     DeepEval --> CI
 
     %% Styling
@@ -58,8 +64,7 @@ graph TB
     classDef obs fill:#e8f5e9,stroke:#1b5e20,stroke-width:2px
     classDef qa fill:#fce4ec,stroke:#880e4f,stroke-width:2px
 
-    class BaseAgent,Config core
+    class ObsProvider,Config core
     class CodingAgent,GitWorkflow,QualityGates,CLI1 coding
     class InfluencerAgent,ProfileModel,Dashboard influencer
-    class Langfuse obs
-    class UnitTests,DeepEval,CI qa
+    class Langfuse,CoreTests,ExampleTests,DeepEval,CI obs

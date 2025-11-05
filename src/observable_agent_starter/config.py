@@ -53,8 +53,8 @@ def _load_dotenv_into_env() -> None:
                 value = value.strip().strip('"').strip()
                 if key and key not in os.environ:
                     os.environ[key] = value
-        except Exception:
-            # Never crash on dotenv parsing
+        except Exception:  # nosec B112
+            # Never crash on dotenv parsing - intentionally skip malformed lines
             continue
 
 

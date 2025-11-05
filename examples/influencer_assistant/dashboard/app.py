@@ -15,6 +15,7 @@ SRC_DIR = EXAMPLE_ROOT / "src"
 if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
 
+from observable_agent_starter import create_observability  # noqa: E402
 from influencer_assistant.dspy import (  # noqa: E402
     VideoIdeaGenerator,
     configure_lm_from_env,
@@ -53,7 +54,7 @@ def ensure_language_model() -> str:
         return "Using configured language model"
 
     if dspy.settings.lm is None:
-        dspy.settings.configure(lm=dspy.utils.DummyLM([{ "response": FALLBACK_IDEAS }]))
+        dspy.settings.configure(lm=dspy.utils.DummyLM([{"response": FALLBACK_IDEAS}]))
         return "Using fallback dummy responses"
 
     return "Using existing language model"
@@ -61,7 +62,7 @@ def ensure_language_model() -> str:
 
 def render_highlights(payload: Dict[str, object]) -> None:
     analytics = payload.get("analytics", {}) or {}
-    cadence = (analytics.get("upload_frequency") or {})
+    cadence = analytics.get("upload_frequency") or {}
     cols = st.columns(3)
     cols[0].metric("Subscribers", f"{analytics.get('subscribers', 0):,}")
     cols[1].metric("Views (28d)", f"{analytics.get('views_last_28_days', 0):,}")
@@ -114,7 +115,8 @@ def render_idea_generation(profile: InfluencerProfile) -> None:
         submitted = st.form_submit_button("Generate ideas")
 
     if submitted:
-        generator = VideoIdeaGenerator(target_count=target_count)
+        observability = create_observability("influencer-video-ideas", configure_lm=False)
+        generator = VideoIdeaGenerator(observability=observability, target_count=target_count)
         ideas = list(
             generator(
                 profile,
@@ -131,7 +133,7 @@ def render_idea_generation(profile: InfluencerProfile) -> None:
             st.markdown(f"**{idx}. {idea.title}{pillar}**")
             st.write(idea.summary)
 
-        with st.expander("Prompt context" , expanded=False):
+        with st.expander("Prompt context", expanded=False):
             st.code(render_profile_context(profile), language="markdown")
 
 
@@ -159,7 +161,9 @@ def main() -> None:
     selected_label = st.sidebar.selectbox(
         "Select a creator snapshot", [label for label, _, _ in options]
     )
-    selected_path, payload = next((p, data) for label, p, data in options if label == selected_label)
+    selected_path, payload = next(
+        (p, data) for label, p, data in options if label == selected_label
+    )
 
     profile = builder.build(payload)
 

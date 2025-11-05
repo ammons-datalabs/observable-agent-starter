@@ -1,0 +1,50 @@
+name: security
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  schedule:
+    # Run weekly on Sundays at midnight UTC
+    - cron: '0 0 * * 0'
+
+jobs:
+  security-scan:
+    name: Security Scanning
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install security tools
+        run: |
+          pip install --upgrade pip
+          pip install bandit[toml] pip-audit
+
+      - name: Run Bandit (Static Application Security Testing)
+        run: |
+          echo "Running Bandit security scanner..."
+          bandit -r src -f json -o bandit-report.json || true
+          echo ""
+          echo "Bandit Results:"
+          bandit -r src -f screen
+
+      - name: Run pip-audit (Dependency Vulnerability Scanner)
+        run: |
+          echo "Checking for known vulnerabilities in dependencies..."
+          pip install -e '.[dev]'
+          pip-audit --desc || true
+
+      - name: Upload Security Reports
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: security-reports
+          path: bandit-report.json
+          retention-days: 30

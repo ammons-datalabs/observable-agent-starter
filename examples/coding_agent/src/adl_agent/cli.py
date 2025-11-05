@@ -7,6 +7,7 @@ import pathlib
 import subprocess
 from adl_agent.harness import make_patch_and_test, run_command
 from adl_agent.agent import CodeAgent
+from observable_agent_starter import create_observability
 import dspy
 
 __version__ = "0.1.0"
@@ -53,8 +54,7 @@ def setup_dspy():
 
 def main():
     parser = argparse.ArgumentParser(
-        "adl-agent",
-        description="Autonomous coding agent with DSPy + Langfuse"
+        "adl-agent", description="Autonomous coding agent with DSPy + Langfuse"
     )
     parser.add_argument("task", nargs="?", help="Engineering task description")
     parser.add_argument("--repo", help="Path to target repository")
@@ -62,7 +62,7 @@ def main():
         "--allow",
         nargs="+",
         default=["src/**/*.py", "tests/**/*.py"],
-        help="Glob patterns for allowed files"
+        help="Glob patterns for allowed files",
     )
     parser.add_argument("--branch-prefix", default="agent", help="Branch name prefix")
     parser.add_argument("--dry-run", action="store_true", help="Generate patch but don't apply")
@@ -88,16 +88,16 @@ def main():
     # Save current branch
     try:
         current_branch = run_command(
-            ["git", "rev-parse", "--abbrev-ref", "HEAD"],
-            cwd=str(repo)
+            ["git", "rev-parse", "--abbrev-ref", "HEAD"], cwd=str(repo)
         ).stdout.strip()
     except subprocess.CalledProcessError:
         current_branch = "main"
 
     # Create branch name
     import re
-    safe_task = re.sub(r'[^\w\s-]', '', args.task)
-    safe_task = re.sub(r'[-\s]+', '-', safe_task)
+
+    safe_task = re.sub(r"[^\w\s-]", "", args.task)
+    safe_task = re.sub(r"[-\s]+", "-", safe_task)
     branch = f"{args.branch_prefix}/{safe_task.lower()[:50]}"
 
     print(f"🌿 Creating branch: {branch}")
@@ -116,8 +116,9 @@ def main():
             # Continue without switching branches
             branch = current_branch
 
-    # Initialize agent
-    agent = CodeAgent()
+    # Initialize agent with observability
+    observability = create_observability("code-agent-generate", configure_lm=False)
+    agent = CodeAgent(observability=observability)
 
     # Generate and test patch
     print(f"🤖 Agent working on task: {args.task}")
@@ -130,7 +131,7 @@ def main():
         repo_path=str(repo),
         allow_globs=args.allow,
         agent=agent,
-        dry_run=args.dry_run
+        dry_run=args.dry_run,
     )
 
     print(output)
@@ -161,7 +162,7 @@ def main():
                     run_command(
                         ["gh", "label", "create", "agent-generated", "--color", "E99695"],
                         cwd=str(repo),
-                        check=False
+                        check=False,
                     )
                 except Exception:
                     pass  # Label may already exist
@@ -171,8 +172,7 @@ def main():
 
                 # Create PR
                 run_command(
-                    ["gh", "pr", "create", "--fill", "--label", "agent-generated"],
-                    cwd=str(repo)
+                    ["gh", "pr", "create", "--fill", "--label", "agent-generated"], cwd=str(repo)
                 )
                 print("✅ PR opened successfully!")
         except subprocess.CalledProcessError as e:

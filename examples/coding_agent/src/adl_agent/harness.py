@@ -66,36 +66,40 @@ def format_lint_and_test(repo_path: str) -> Tuple[bool, str]:
         passed = result.returncode == 0
         all_passed = all_passed and passed
 
-        results.append({
-            "name": name,
-            "passed": passed,
-            "stdout": result.stdout[:500],  # Truncate for logging
-            "stderr": result.stderr[:500]
-        })
+        results.append(
+            {
+                "name": name,
+                "passed": passed,
+                "stdout": result.stdout[:500],  # Truncate for logging
+                "stderr": result.stderr[:500],
+            }
+        )
 
-    output = "\n\n".join([
-        f"[{'✓' if r['passed'] else '✗'}] {r['name']}\n{r['stdout']}\n{r['stderr']}"
-        for r in results
-    ])
+    output = "\n\n".join(
+        [
+            f"[{'✓' if r['passed'] else '✗'}] {r['name']}\n{r['stdout']}\n{r['stderr']}"
+            for r in results
+        ]
+    )
 
     return all_passed, output
 
 
 def strip_markdown_fences(content: str) -> str:
     """Remove markdown code fences if present."""
-    lines = content.split('\n')
+    lines = content.split("\n")
 
     # Check if content starts with markdown code fence
-    if lines and lines[0].strip().startswith('```'):
+    if lines and lines[0].strip().startswith("```"):
         # Remove first line
         lines = lines[1:]
 
         # Check if content ends with markdown code fence
-        if lines and lines[-1].strip() == '```':
+        if lines and lines[-1].strip() == "```":
             # Remove last line
             lines = lines[:-1]
 
-    return '\n'.join(lines)
+    return "\n".join(lines)
 
 
 @observe(name="write-new-file")
@@ -124,11 +128,7 @@ def write_new_file(repo_path: str, filename: str, content: str) -> Tuple[bool, s
 
 @observe(name="make-file-and-test")
 def make_patch_and_test(
-    task: str,
-    repo_path: str,
-    allow_globs: List[str],
-    agent,
-    dry_run: bool = False
+    task: str, repo_path: str, allow_globs: List[str], agent, dry_run: bool = False
 ) -> Tuple[str, bool, str]:
     """
     Generate a new file using the agent and test it.
@@ -141,11 +141,7 @@ def make_patch_and_test(
 
     # Generate file with agent
     try:
-        result = agent(
-            task=task,
-            repo_state=repo_state,
-            allowed_patterns=allow_globs
-        )
+        result = agent(task=task, repo_state=repo_state, allowed_patterns=allow_globs)
         filename = result.filename
         content = result.content
         explanation = result.explanation
@@ -155,7 +151,11 @@ def make_patch_and_test(
         return "", False, error_msg
 
     if dry_run:
-        return content, False, f"DRY RUN - File generated but not written.\n\nFilename: {filename}\nExplanation: {explanation}\nRisk: {risk_level}"
+        return (
+            content,
+            False,
+            f"DRY RUN - File generated but not written.\n\nFilename: {filename}\nExplanation: {explanation}\nRisk: {risk_level}",
+        )
 
     # Write file
     written, write_output = write_new_file(repo_path, filename, content)

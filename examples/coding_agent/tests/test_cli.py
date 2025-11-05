@@ -180,7 +180,14 @@ class TestMain:
     @patch("adl_agent.cli.setup_dspy")
     @patch("adl_agent.cli.CodeAgent")
     def test_main_no_patch_generated_exits(
-        self, mock_agent_class, mock_setup, mock_run_cmd, mock_make_patch, tmp_path, monkeypatch, capsys
+        self,
+        mock_agent_class,
+        mock_setup,
+        mock_run_cmd,
+        mock_make_patch,
+        tmp_path,
+        monkeypatch,
+        capsys,
     ):
         """Test that no patch generated causes exit."""
         repo = tmp_path / "test_repo"
@@ -205,7 +212,14 @@ class TestMain:
     @patch("adl_agent.cli.setup_dspy")
     @patch("adl_agent.cli.CodeAgent")
     def test_main_tests_failed_exits(
-        self, mock_agent_class, mock_setup, mock_run_cmd, mock_make_patch, tmp_path, monkeypatch, capsys
+        self,
+        mock_agent_class,
+        mock_setup,
+        mock_run_cmd,
+        mock_make_patch,
+        tmp_path,
+        monkeypatch,
+        capsys,
     ):
         """Test that failed tests cause exit."""
         repo = tmp_path / "test_repo"
@@ -313,7 +327,14 @@ class TestBranchHandling:
     @patch("adl_agent.cli.setup_dspy")
     @patch("adl_agent.cli.CodeAgent")
     def test_existing_branch_checkout(
-        self, mock_agent_class, mock_setup, mock_run_cmd, mock_make_patch, tmp_path, monkeypatch, capsys
+        self,
+        mock_agent_class,
+        mock_setup,
+        mock_run_cmd,
+        mock_make_patch,
+        tmp_path,
+        monkeypatch,
+        capsys,
     ):
         """Test that existing branch is checked out."""
         repo = tmp_path / "test_repo"
@@ -361,9 +382,14 @@ class TestArgumentParsing:
         mock_make_patch.return_value = ("patch", False, "output")
 
         test_args = [
-            "adl-agent", "task", "--repo", str(repo),
-            "--allow", "src/**/*.py", "lib/**/*.py",
-            "--dry-run"
+            "adl-agent",
+            "task",
+            "--repo",
+            str(repo),
+            "--allow",
+            "src/**/*.py",
+            "lib/**/*.py",
+            "--dry-run",
         ]
         monkeypatch.setattr(sys, "argv", test_args)
 
@@ -398,9 +424,13 @@ class TestArgumentParsing:
         mock_make_patch.return_value = ("patch", False, "output")
 
         test_args = [
-            "adl-agent", "task", "--repo", str(repo),
-            "--branch-prefix", "feature",
-            "--dry-run"
+            "adl-agent",
+            "task",
+            "--repo",
+            str(repo),
+            "--branch-prefix",
+            "feature",
+            "--dry-run",
         ]
         monkeypatch.setattr(sys, "argv", test_args)
 

@@ -1,5 +1,5 @@
 # Simple dev workflow
-.PHONY: dev lint type test evals test-examples demo-influencer tune-influencer run
+.PHONY: dev lint type test coverage precommit evals test-examples demo-influencer tune-influencer run
 
 VENV ?= .venv
 PYTHON_BOOTSTRAP ?= python3
@@ -10,6 +10,10 @@ dev:
 	$(PYTHON_BOOTSTRAP) -m venv $(VENV)
 	$(PYTHON) -m pip install -U pip uv
 	$(UV) pip install -e '.[dev]'
+	@echo "✅ Development environment ready!"
+	@echo "📝 Next steps:"
+	@echo "   - Run 'make precommit' to install git hooks"
+	@echo "   - Run 'make test' to verify setup"
 
 lint:
 	$(VENV)/bin/ruff check .
@@ -19,6 +23,14 @@ type:
 
 test:
 	$(PYTHON) -m pytest -v
+
+coverage:
+	$(PYTHON) -m pytest --cov=observable_agent_starter --cov-report=html --cov-report=term-missing
+	@echo "📊 Coverage report generated in htmlcov/index.html"
+
+precommit:
+	$(VENV)/bin/pre-commit install
+	$(VENV)/bin/pre-commit run --all-files
 
 test-examples:
 	@if ! $(PYTHON) -c "import pydantic" >/dev/null 2>&1; then \

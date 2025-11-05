@@ -32,16 +32,8 @@ except ImportError as exc:  # pragma: no cover - teleprompt availability depends
         "DSPy teleprompting components are unavailable. Upgrade dspy-ai to >=2.4."
     ) from exc
 
-OUTPUT_PATH = (
-    Path(__file__).resolve().parents[1]
-    / "prompts"
-    / "video_ideas_optimized.txt"
-)
-REPORT_PATH = (
-    Path(__file__).resolve().parents[1]
-    / "prompts"
-    / "video_ideas_tuning_report.md"
-)
+OUTPUT_PATH = Path(__file__).resolve().parents[1] / "prompts" / "video_ideas_optimized.txt"
+REPORT_PATH = Path(__file__).resolve().parents[1] / "prompts" / "video_ideas_tuning_report.md"
 
 
 def _lines_from_obj(obj: object) -> List[str]:
@@ -168,9 +160,7 @@ class _OpenAIEmbedder:
     def __init__(self) -> None:
         self.api_key = os.getenv("OPENAI_API_KEY")
         if not self.api_key:
-            raise SystemExit(
-                "Semantic metric requires OPENAI_API_KEY to be set (via .env)."
-            )
+            raise SystemExit("Semantic metric requires OPENAI_API_KEY to be set (via .env).")
         base = os.getenv("OPENAI_BASE_URL", "https://api.openai.com/v1").rstrip("/")
         self.url = f"{base}/embeddings"
         self.model = os.getenv("OPENAI_EMBED_MODEL", "text-embedding-3-small")
@@ -209,6 +199,7 @@ class _OpenAIEmbedder:
 
 def _normalize_for_semantic(s: str) -> str:
     import re
+
     s = s.strip().lower()
     s = re.sub(r"^\s*\d+[\.)\-\s]*", "", s)  # drop leading numbers
     s = s.replace(" — ", " - ").replace("–", "-")
@@ -474,7 +465,9 @@ if __name__ == "__main__":
                 profile_context=getattr(trainset[0], "profile_context", ""),
                 request=getattr(trainset[0], "request", ""),
             )
-            print("Baseline prediction sample:\n", str(getattr(pred, "response", "")).splitlines()[:5])
+            print(
+                "Baseline prediction sample:\n", str(getattr(pred, "response", "")).splitlines()[:5]
+            )
         except Exception as exc:  # pragma: no cover
             print("Baseline prediction failed:", exc)
     main(

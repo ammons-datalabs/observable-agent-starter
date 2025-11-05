@@ -11,7 +11,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with: { python-version: '3.12' }
-      - run: pip install -U pip uv
+      - run: pip install -U pip uv>=0.9.6
       - run: uv pip install --system -e '.[dev]'
 
       - name: Ruff
@@ -20,8 +20,15 @@ jobs:
       - name: Pyright
         uses: jakebailey/pyright-action@v2
 
-      - name: Core Tests
-        run: pytest tests/ -v
+      - name: Core Tests with Coverage
+        run: pytest tests/ -v --cov=observable_agent_starter --cov-report=xml --cov-report=term-missing
+
+      - name: Upload Coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          file: ./coverage.xml
+          flags: core
+          fail_ci_if_error: false
 
   coding-agent:
     name: Coding Agent Example
@@ -30,7 +37,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with: { python-version: '3.12' }
-      - run: pip install -U pip uv
+      - run: pip install -U pip uv>=0.9.6
       - run: uv pip install --system -e '.[dev]'
       - run: cd examples/coding_agent && pip install -e .
 
@@ -44,7 +51,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with: { python-version: '3.12' }
-      - run: pip install -U pip uv
+      - run: pip install -U pip uv>=0.9.6
       - run: uv pip install --system -e '.[dev,examples]'
       - run: cd examples/influencer_assistant && pip install -e '.[dev]'
 

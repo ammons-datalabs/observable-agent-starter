@@ -1,6 +1,6 @@
 """DSPy module for generating video ideas from a creator portfolio.
 
-Demonstrates extending BaseAgent from observable_agent_starter.
+Demonstrates composition pattern with ObservabilityProvider from observable_agent_starter.
 """
 
 from __future__ import annotations
@@ -10,7 +10,7 @@ from typing import List, Sequence
 
 import dspy
 
-from observable_agent_starter import BaseAgent
+from observable_agent_starter import ObservabilityProvider
 from influencer_assistant.profile import InfluencerProfile
 
 from .context import render_profile_context
@@ -32,23 +32,19 @@ class VideoIdeaSignature(dspy.Signature):
     profile_context = dspy.InputField(desc="Key details about the creator business")
     request = dspy.InputField(desc="Manager request or constraints")
     response = dspy.OutputField(
-        desc=(
-            "Return exactly 3 numbered lines, each formatted as: "
-            "'Title - Summary | Pillar'."
-        )
+        desc=("Return exactly 3 numbered lines, each formatted as: " "'Title - Summary | Pillar'.")
     )
 
 
-class VideoIdeaGenerator(dspy.Module, BaseAgent):
+class VideoIdeaGenerator(dspy.Module):
     """Generate video ideas grounded in a `InfluencerProfile`.
 
-    Extends BaseAgent to get automatic LM configuration and tracing helpers.
+    Uses composition pattern with ObservabilityProvider for tracing.
     """
 
-    def __init__(self, *, target_count: int = 4) -> None:
-        dspy.Module.__init__(self)
-        BaseAgent.__init__(self, observation_name="influencer-video-ideas")
-
+    def __init__(self, observability: ObservabilityProvider, *, target_count: int = 4) -> None:
+        super().__init__()
+        self.observability = observability
         self.predict = dspy.Predict(VideoIdeaSignature)
         self._target_count = target_count
 
@@ -99,16 +95,16 @@ class VideoIdeaGenerator(dspy.Module, BaseAgent):
                 )
                 fallback_reason = "empty_response"
 
-        # Log via BaseAgent helper
-        self.log_generation(
+        # Log via ObservabilityProvider
+        self.observability.log_generation(
             input_data={"profile": profile.handle, "request": request},
             output_data={
                 "creator_id": profile.creator_id,
                 "handle": profile.handle,
-                "ideas": [asdict(idea) for idea in ideas]
+                "ideas": [asdict(idea) for idea in ideas],
             },
             variation_token=variation_token,
-            fallback_reason=fallback_reason
+            fallback_reason=fallback_reason,
         )
 
         return ideas
@@ -181,9 +177,7 @@ def _fallback_ideas(
     for idx in range(max_ideas):
         pillar = pillars[idx % len(pillars)]
         title = f"{pillar} {base_titles[idx % len(base_titles)]}"
-        summary = (
-            f"Actionable idea inspired by the '{pillar}' pillar to address: {request}."
-        )
+        summary = f"Actionable idea inspired by the '{pillar}' pillar to address: {request}."
         ideas.append(
             VideoIdea(
                 title=title,

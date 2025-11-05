@@ -1,0 +1,27 @@
+graph TB
+    %% Core Framework Architecture - Simple and focused
+
+    subgraph Core["Core Framework"]
+        direction TB
+        Factory["🏭 create_observability()<br/>Factory function"]
+        ObsProvider["🧩 ObservabilityProvider<br/>• log_generation()<br/>• Logger"]
+        Config["⚙️ Config Module<br/>• LM setup<br/>• Langfuse setup"]
+
+        Factory --> ObsProvider
+        Factory --> Config
+        ObsProvider --> Config
+    end
+
+    subgraph External["External Services"]
+        direction TB
+        Langfuse["🔍 Langfuse<br/>Tracing & Monitoring"]
+    end
+
+    Config --> Langfuse
+
+    %% Styling
+    classDef coreStyle fill:#e1f5ff,stroke:#01579b,stroke-width:3px
+    classDef externalStyle fill:#e8f5e9,stroke:#1b5e20,stroke-width:2px
+
+    class Factory,ObsProvider,Config coreStyle
+    class Langfuse externalStyle
