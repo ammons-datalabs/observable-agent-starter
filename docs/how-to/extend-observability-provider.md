@@ -1,13 +1,13 @@
-# How to Extend BaseAgent
+# How to Build Agents with ObservabilityProvider
 
-This guide walks you through creating your own agent by extending the `BaseAgent` class.
+This guide walks you through creating your own agent using the composition pattern with `ObservabilityProvider`.
 
 ## Quick Start
 
 ### Minimal Agent Example
 
 ```python
-from observable_agent_starter import BaseAgent
+from observable_agent_starter import ObservabilityProvider, create_observability
 import dspy
 
 class MySignature(dspy.Signature):
@@ -15,19 +15,18 @@ class MySignature(dspy.Signature):
     question: str = dspy.InputField()
     answer: str = dspy.OutputField()
 
-class MyAgent(dspy.Module, BaseAgent):
+class MyAgent(dspy.Module):
     """Simple Q&A agent with tracing."""
 
-    def __init__(self):
-        dspy.Module.__init__(self)
-        BaseAgent.__init__(self, observation_name="my-qa-agent")
-
+    def __init__(self, observability: ObservabilityProvider):
+        super().__init__()
+        self.observability = observability
         self.predict = dspy.ChainOfThought(MySignature)
 
     def forward(self, question: str):
         result = self.predict(question=question)
 
-        self.log_generation(
+        self.observability.log_generation(
             input_data={"question": question},
             output_data={"answer": result.answer}
         )
@@ -43,8 +42,9 @@ export OPENAI_API_KEY=your-key
 export LANGFUSE_PUBLIC_KEY=pk-...  # optional
 export LANGFUSE_SECRET_KEY=sk-...  # optional
 
-# Use the agent
-agent = MyAgent()
+# Create and use the agent
+observability = create_observability("my-qa-agent")
+agent = MyAgent(observability=observability)
 answer = agent(question="What is DSPy?")
 print(answer)
 ```
@@ -87,19 +87,15 @@ class VideoIdeaSignature(dspy.Signature):
 ### Step 2: Create Your Agent Class
 
 ```python
-from observable_agent_starter import BaseAgent
+from observable_agent_starter import ObservabilityProvider
 import dspy
 
-class VideoIdeaAgent(dspy.Module, BaseAgent):
+class VideoIdeaAgent(dspy.Module):
     """Generate video ideas with observability."""
 
-    def __init__(self):
-        # Initialize both parent classes
-        dspy.Module.__init__(self)
-        BaseAgent.__init__(
-            self,
-            observation_name="video-idea-generator"
-        )
+    def __init__(self, observability: ObservabilityProvider):
+        super().__init__()
+        self.observability = observability
 
         # Your DSPy modules
         self.generate = dspy.ChainOfThought(VideoIdeaSignature)
@@ -113,7 +109,7 @@ class VideoIdeaAgent(dspy.Module, BaseAgent):
         )
 
         # Log to Langfuse (optional but recommended)
-        self.log_generation(
+        self.observability.log_generation(
             input_data={
                 "profile": creator_profile,
                 "request": request
@@ -141,7 +137,7 @@ def forward(self, creator_profile: str, request: str):
             request=request
         )
 
-        self.log_generation(
+        self.observability.log_generation(
             input_data={"profile": creator_profile, "request": request},
             output_data={"ideas": result.ideas}
         )
@@ -149,10 +145,10 @@ def forward(self, creator_profile: str, request: str):
         return result
 
     except Exception as e:
-        self.logger.error(f"Generation failed: {e}")
+        self.observability.logger.error(f"Generation failed: {e}")
 
         # Log error to Langfuse
-        self.log_generation(
+        self.observability.log_generation(
             input_data={"profile": creator_profile, "request": request},
             output_data={"error": str(e)},
             metadata={"error_type": type(e).__name__}
@@ -174,11 +170,10 @@ class CodePatch(dspy.Signature):
     content: str = dspy.OutputField()
     risk_level: str = dspy.OutputField(desc="low, medium, or high")
 
-class CodeAgent(dspy.Module, BaseAgent):
-    def __init__(self, allowed_patterns: list[str]):
-        dspy.Module.__init__(self)
-        BaseAgent.__init__(self, observation_name="code-agent")
-
+class CodeAgent(dspy.Module):
+    def __init__(self, observability: ObservabilityProvider, allowed_patterns: list[str]):
+        super().__init__()
+        self.observability = observability
         self.allowed_patterns = allowed_patterns
         self.generate = dspy.ChainOfThought(CodePatch)
 
@@ -201,7 +196,7 @@ class CodeAgent(dspy.Module, BaseAgent):
             "File content cannot be empty"
         )
 
-        self.log_generation(
+        self.observability.log_generation(
             input_data={"task": task},
             output_data={"filename": result.filename, "risk": result.risk_level}
         )
@@ -221,10 +216,10 @@ class CodeAgent(dspy.Module, BaseAgent):
 ### Multi-Step Reasoning
 
 ```python
-class ResearchAgent(dspy.Module, BaseAgent):
-    def __init__(self):
-        dspy.Module.__init__(self)
-        BaseAgent.__init__(self, observation_name="research-agent")
+class ResearchAgent(dspy.Module):
+    def __init__(self, observability: ObservabilityProvider):
+        super().__init__()
+        self.observability = observability
 
         # Multiple DSPy modules
         self.extract_keywords = dspy.ChainOfThought(ExtractKeywords)
@@ -248,7 +243,7 @@ class ResearchAgent(dspy.Module, BaseAgent):
         )
 
         # Log the full pipeline
-        self.log_generation(
+        self.observability.log_generation(
             input_data={"question": question, "num_docs": len(documents)},
             output_data={"answer": answer.text},
             metadata={
@@ -271,11 +266,10 @@ class CreatorProfile(BaseModel):
     niche: str
     content_pillars: list[str]
 
-class ProfileAgent(dspy.Module, BaseAgent):
-    def __init__(self):
-        dspy.Module.__init__(self)
-        BaseAgent.__init__(self, observation_name="profile-agent")
-
+class ProfileAgent(dspy.Module):
+    def __init__(self, observability: ObservabilityProvider):
+        super().__init__()
+        self.observability = observability
         self.generate = dspy.ChainOfThought(VideoIdeaSignature)
 
     def forward(self, profile: CreatorProfile, request: str):
@@ -287,7 +281,7 @@ class ProfileAgent(dspy.Module, BaseAgent):
             request=request
         )
 
-        self.log_generation(
+        self.observability.log_generation(
             input_data={
                 "profile": profile.model_dump(),
                 "request": request
@@ -309,10 +303,10 @@ Content Pillars: {', '.join(profile.content_pillars)}
 ### Conditional Logic
 
 ```python
-class RoutingAgent(dspy.Module, BaseAgent):
-    def __init__(self):
-        dspy.Module.__init__(self)
-        BaseAgent.__init__(self, observation_name="routing-agent")
+class RoutingAgent(dspy.Module):
+    def __init__(self, observability: ObservabilityProvider):
+        super().__init__()
+        self.observability = observability
 
         self.classifier = dspy.Predict(ClassifyIntent)
         self.qa_agent = dspy.ChainOfThought(QuestionAnswering)
@@ -330,7 +324,7 @@ class RoutingAgent(dspy.Module, BaseAgent):
         else:
             raise ValueError(f"Unknown intent: {intent.category}")
 
-        self.log_generation(
+        self.observability.log_generation(
             input_data={"input": user_input},
             output_data={"result": result.output},
             metadata={"intent": intent.category}
@@ -346,6 +340,7 @@ class RoutingAgent(dspy.Module, BaseAgent):
 ```python
 import pytest
 import dspy
+from observable_agent_starter import ObservabilityProvider
 from your_agent import VideoIdeaAgent
 
 @pytest.fixture(autouse=True)
@@ -355,11 +350,18 @@ def reset_dspy():
     yield
     dspy.settings.configure(lm=None)
 
-def test_agent_generates_ideas(monkeypatch):
+@pytest.fixture
+def mock_observability(monkeypatch):
+    """Create a mock ObservabilityProvider that doesn't log."""
+    provider = ObservabilityProvider("test-agent")
+    monkeypatch.setattr(provider, "log_generation", lambda **_: None)
+    return provider
+
+def test_agent_generates_ideas(mock_observability, monkeypatch):
     """Should generate video ideas."""
     monkeypatch.setenv("OPENAI_API_KEY", "test-key")
 
-    agent = VideoIdeaAgent()
+    agent = VideoIdeaAgent(observability=mock_observability)
     result = agent(
         creator_profile="Tech YouTuber with 100k subs",
         request="AI tutorial ideas"
@@ -400,7 +402,9 @@ def test_agent_with_langfuse(monkeypatch):
 
     monkeypatch.setattr(config, "Langfuse", MockLangfuse)
 
-    agent = VideoIdeaAgent()
+    from observable_agent_starter import create_observability
+    observability = create_observability("test-agent")
+    agent = VideoIdeaAgent(observability=observability)
     agent(creator_profile="Test", request="Test")
 
     # Verify observation was created
@@ -415,9 +419,9 @@ def test_agent_with_langfuse(monkeypatch):
 Use descriptive, hierarchical names:
 
 ```python
-BaseAgent.__init__(self, observation_name="video-ideas-generator")
-BaseAgent.__init__(self, observation_name="code-agent-file-creation")
-BaseAgent.__init__(self, observation_name="research-document-synthesis")
+observability = create_observability("video-ideas-generator")
+observability = create_observability("code-agent-file-creation")
+observability = create_observability("research-document-synthesis")
 ```
 
 ### 2. Structured Logging
@@ -425,7 +429,7 @@ BaseAgent.__init__(self, observation_name="research-document-synthesis")
 Log structured data for better analysis:
 
 ```python
-self.log_generation(
+self.observability.log_generation(
     input_data={
         "user_id": user.id,
         "query": query,
@@ -453,7 +457,7 @@ def forward(self, question: str):
         result = self.predict(question=question)
         return result.answer
     except Exception as e:
-        self.logger.warning(f"Primary model failed: {e}")
+        self.observability.logger.warning(f"Primary model failed: {e}")
 
         # Fallback to simpler model
         result = self.fallback_predict(question=question)
@@ -465,16 +469,15 @@ def forward(self, question: str):
 Make agents configurable:
 
 ```python
-class ConfigurableAgent(dspy.Module, BaseAgent):
+class ConfigurableAgent(dspy.Module):
     def __init__(
         self,
-        observation_name: str = "agent",
+        observability: ObservabilityProvider,
         temperature: float = 0.7,
         max_retries: int = 3
     ):
-        dspy.Module.__init__(self)
-        BaseAgent.__init__(self, observation_name=observation_name)
-
+        super().__init__()
+        self.observability = observability
         self.temperature = temperature
         self.max_retries = max_retries
 ```
@@ -488,50 +491,60 @@ class ConfigurableAgent(dspy.Module, BaseAgent):
 
 ## Common Pitfalls
 
-### 1. Not Calling Both Inits
+### 1. Forgetting to Inject ObservabilityProvider
 
 ```python
-# Wrong - only one init
-class MyAgent(dspy.Module, BaseAgent):
+# Wrong - no observability
+class MyAgent(dspy.Module):
     def __init__(self):
-        super().__init__()  # Ambiguous which parent
+        super().__init__()
 
-# Correct - explicit init for both
-class MyAgent(dspy.Module, BaseAgent):
-    def __init__(self):
-        dspy.Module.__init__(self)
-        BaseAgent.__init__(self, observation_name="my-agent")
+# Correct - inject ObservabilityProvider
+class MyAgent(dspy.Module):
+    def __init__(self, observability: ObservabilityProvider):
+        super().__init__()
+        self.observability = observability
 ```
 
-### 2. Forgetting to Configure LM
+### 2. Not Using the Factory Function
+
+```python
+# Less convenient - manual setup
+observability = ObservabilityProvider("my-agent")
+configure_lm_from_env()  # Have to call separately
+agent = MyAgent(observability=observability)
+
+# Better - factory handles LM setup
+observability = create_observability("my-agent")
+agent = MyAgent(observability=observability)
+```
+
+### 3. Forgetting to Configure LM
 
 ```python
 # Your code
-agent = MyAgent()
+observability = create_observability("my-agent", configure_lm=False)
+agent = MyAgent(observability=observability)
 result = agent(question="test")  # May fail if no LM configured
 
-# Better - check configuration
-from observable_agent_starter.config import configure_lm_from_env
-
-if not configure_lm_from_env():
-    raise RuntimeError("Set OPENAI_API_KEY environment variable")
-
-agent = MyAgent()
+# Better - let factory configure LM (default behavior)
+observability = create_observability("my-agent")  # configure_lm=True by default
+agent = MyAgent(observability=observability)
 result = agent(question="test")
 ```
 
-### 3. Not Handling Missing Langfuse
+### 4. Not Handling Missing Langfuse
 
 Langfuse is optional - your agent should work without it:
 
 ```python
-# Already handled by BaseAgent.log_generation()
+# Already handled by ObservabilityProvider.log_generation()
 # No need to check if Langfuse is configured
-self.log_generation(...)  # Gracefully skips if not configured
+self.observability.log_generation(...)  # Gracefully skips if not configured
 ```
 
 ## Support
 
-- [Open an issue](https://github.com/your-org/observable-agent-starter/issues)
+- [Open an issue](https://github.com/ammons-datalabs/observable-agent-starter/issues)
 - Review existing [examples](../../examples/)
 - Check [DSPy documentation](https://dspy-docs.vercel.app/)

@@ -358,6 +358,6 @@ Never commit sensitive keys:
 
 ## Further Reading
 
-- [How to Extend BaseAgent](how-to/extend-baseagent.md)
+- [How to Build Agents](how-to/extend-observability-provider.md)
 - [DSPy Documentation](https://dspy-docs.vercel.app/)
 - [Langfuse Documentation](https://langfuse.com/docs)

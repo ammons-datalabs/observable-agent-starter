@@ -70,7 +70,7 @@ examples/                        # Example implementations
   └── influencer_assistant/      # Content ideation with DeepEval
 
 tests/                           # Framework tests
-  ├── test_base_agent.py
+  ├── test_observability.py
   └── test_config.py
 ```
 
@@ -190,14 +190,14 @@ agent = MyAgent(observability=observability)
 ### Quick Links
 
 - [Architecture Overview](docs/architecture.md) - System design and components
-- [How to Extend BaseAgent](docs/how-to/extend-baseagent.md) - Step-by-step agent creation guide
+- [How to Build Agents](docs/how-to/extend-observability-provider.md) - Step-by-step agent creation guide
 - [Contributing Guidelines](CONTRIBUTING.md) - Development workflow and standards
 - [Code of Conduct](CODE_OF_CONDUCT.md) - Community guidelines
 
 ### Learn More
 
-- **[Architecture](docs/architecture.md)** explains the BaseAgent pattern, observability layer, and quality assurance strategy
-- **[Extension Guide](docs/how-to/extend-baseagent.md)** walks through creating custom agents with examples and best practices
+- **[Architecture](docs/architecture.md)** explains the composition pattern with ObservabilityProvider, observability layer, and quality assurance strategy
+- **[Building Agents Guide](docs/how-to/extend-observability-provider.md)** walks through creating custom agents with examples and best practices
 - **[Examples](examples/)** demonstrate production-ready patterns:
   - [Coding Agent](examples/coding_agent/README.md) - File generation with quality gates
   - [Influencer Assistant](examples/influencer_assistant/README.md) - Content ideation with DeepEval
