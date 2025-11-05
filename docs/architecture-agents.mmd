@@ -1,0 +1,67 @@
+graph TB
+    %% Agent Implementation Pattern
+
+    subgraph Setup["Setup (Composition Pattern)"]
+        direction LR
+        Factory["create_observability('my-agent')"]
+        ObsProvider["ObservabilityProvider<br/>instance"]
+        Factory --> ObsProvider
+    end
+
+    subgraph Agent["Your Agent (dspy.Module)"]
+        direction TB
+        Init["__init__(observability)"]
+        DSpy["DSPy Modules<br/>ChainOfThought, Predict, etc."]
+        Forward["forward(**kwargs)"]
+        Log["observability.log_generation()"]
+
+        Init --> DSpy
+        DSpy --> Forward
+        Forward --> Log
+    end
+
+    ObsProvider -.injected into.-> Init
+
+    subgraph Examples["Production Examples"]
+        direction LR
+
+        subgraph Coding["Coding Agent (3 tests)"]
+            direction TB
+            CA["🤖 CodeAgent"]
+            Git["📝 Git Integration"]
+            Gates["✅ Quality Gates<br/>ruff • pytest"]
+            CA --> Git
+            CA --> Gates
+        end
+
+        subgraph Influencer["Influencer Assistant (4 tests)"]
+            direction TB
+            VI["🎨 VideoIdeaGenerator"]
+            Profile["👤 Pydantic Models"]
+            Dashboard["📊 Streamlit Dashboard"]
+            VI --> Profile
+            VI --> Dashboard
+        end
+    end
+
+    Agent -.implemented as.-> Coding
+    Agent -.implemented as.-> Influencer
+
+    subgraph Trace["Observability"]
+        Langfuse["🔍 Langfuse Tracing"]
+    end
+
+    Log --> Langfuse
+
+    %% Styling
+    classDef setupStyle fill:#e1f5ff,stroke:#01579b,stroke-width:3px
+    classDef agentStyle fill:#fff9c4,stroke:#f57f17,stroke-width:3px
+    classDef codingStyle fill:#f3e5f5,stroke:#4a148c,stroke-width:2px
+    classDef influencerStyle fill:#fff3e0,stroke:#e65100,stroke-width:2px
+    classDef traceStyle fill:#e8f5e9,stroke:#1b5e20,stroke-width:2px
+
+    class Factory,ObsProvider setupStyle
+    class Init,DSpy,Forward,Log agentStyle
+    class CA,Git,Gates codingStyle
+    class VI,Profile,Dashboard influencerStyle
+    class Langfuse traceStyle

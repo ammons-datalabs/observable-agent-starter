@@ -4,19 +4,27 @@ This document explains the architecture of Observable Agent Starter and how its 
 
 ## Overview
 
-Observable Agent Starter is built on a minimal, extensible foundation:
+Observable Agent Starter is built on a minimal, extensible foundation using a composition pattern for clean dependency injection.
 
-```
-Core Framework (src/observable_agent_starter/)
-    ↓
-Composition Pattern (inject ObservabilityProvider)
-    ↓
-Example Implementations (coding_agent, influencer_assistant)
-    ↓
-Observability & Quality (Langfuse, pytest, DeepEval)
-```
+### Core Framework Architecture
 
-![Architecture Diagram](architecture.png)
+![Core Framework](architecture-core.png)
+
+The core provides:
+- **ObservabilityProvider** - Injected into agents for tracing
+- **Config Module** - LM and Langfuse setup
+- **Testing Infrastructure** - 23 core tests (85%+ coverage), 7 example tests
+- **CI/CD Pipeline** - Automated quality checks
+
+### Agent Implementation Pattern
+
+![Agent Pattern](architecture-agents.png)
+
+Agents use composition:
+- Create observability instance via `create_observability()`
+- Inject into agent constructor
+- Use `observability.log_generation()` for tracing
+- Examples show production-ready patterns
 
 ## Core Components
 
