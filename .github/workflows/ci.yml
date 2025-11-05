@@ -11,7 +11,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with: { python-version: '3.12' }
-      - run: pip install -U pip uv
+      - run: pip install -U pip uv>=0.9.6
       - run: uv pip install --system -e '.[dev]'
 
       - name: Ruff
@@ -37,7 +37,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with: { python-version: '3.12' }
-      - run: pip install -U pip uv
+      - run: pip install -U pip uv>=0.9.6
       - run: uv pip install --system -e '.[dev]'
       - run: cd examples/coding_agent && pip install -e .
 
@@ -51,7 +51,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with: { python-version: '3.12' }
-      - run: pip install -U pip uv
+      - run: pip install -U pip uv>=0.9.6
       - run: uv pip install --system -e '.[dev,examples]'
       - run: cd examples/influencer_assistant && pip install -e '.[dev]'
 
