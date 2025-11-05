@@ -57,9 +57,7 @@ class InfluencerProfileBuilder:
             goals=self._build_goals(identity=identity, analytics=analytics),
             audience=self._build_audience(research.get("audience")),
             content_pillars=list(content.get("pillars", []) or []),
-            publishing_cadence=self._build_publishing_cadence(
-                analytics.get("upload_frequency")
-            ),
+            publishing_cadence=self._build_publishing_cadence(analytics.get("upload_frequency")),
             backlog=self._build_backlog(
                 call_notes=call_notes,
                 upcoming_ideas=content.get("upcoming_ideas"),
@@ -76,9 +74,7 @@ class InfluencerProfileBuilder:
         return profile
 
     @staticmethod
-    def _build_goals(
-        identity: Dict[str, Any], analytics: Dict[str, Any]
-    ) -> Dict[str, Any]:
+    def _build_goals(identity: Dict[str, Any], analytics: Dict[str, Any]) -> Dict[str, Any]:
         goals: Dict[str, Any] = {
             "primary": identity.get("primary_goal", ""),
             "secondary": identity.get("secondary_goals", []),
@@ -158,9 +154,7 @@ class InfluencerProfileBuilder:
         return backlog
 
     @staticmethod
-    def _build_publishing_cadence(
-        frequency: Optional[Dict[str, Any]]
-    ) -> Dict[str, Any]:
+    def _build_publishing_cadence(frequency: Optional[Dict[str, Any]]) -> Dict[str, Any]:
         if not frequency:
             return {}
         return {

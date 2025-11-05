@@ -31,14 +31,18 @@ def mock_observability(monkeypatch):
 
 @pytest.fixture(autouse=True)
 def configure_dummy_lm():
-    dspy.settings.configure(lm=dspy.utils.DummyLM([
-        {
-            "response": (
-                "1. Automating Onboarding Results - Highlight our AI SOPs | AI tooling deep dives\n"
-                "2. Turning Views Into Leads - Showcase success stories | Agency growth playbooks"
-            )
-        }
-    ]))
+    dspy.settings.configure(
+        lm=dspy.utils.DummyLM(
+            [
+                {
+                    "response": (
+                        "1. Automating Onboarding Results - Highlight our AI SOPs | AI tooling deep dives\n"
+                        "2. Turning Views Into Leads - Showcase success stories | Agency growth playbooks"
+                    )
+                }
+            ]
+        )
+    )
     yield
     dspy.settings.configure(lm=None)
 
@@ -50,7 +54,9 @@ def test_render_profile_context_contains_core_sections(profile: InfluencerProfil
     assert "Risks" in context
 
 
-def test_video_idea_generator_parses_dummy_response(profile: InfluencerProfile, mock_observability) -> None:
+def test_video_idea_generator_parses_dummy_response(
+    profile: InfluencerProfile, mock_observability
+) -> None:
     generator = VideoIdeaGenerator(observability=mock_observability, target_count=2)
     ideas = list(generator(profile, request="Focus on lead gen"))
 
@@ -64,6 +70,7 @@ def test_video_idea_generator_parses_dummy_response(profile: InfluencerProfile, 
 def test_video_idea_generator_fallback_without_lm(monkeypatch, profile: InfluencerProfile) -> None:
     # Prevent configure_lm_from_env from loading LM
     import influencer_assistant.dspy.video_ideas as video_ideas_module
+
     monkeypatch.setattr(video_ideas_module, "configure_lm_from_env", lambda: False)
 
     dspy.settings.configure(lm=None)

@@ -70,9 +70,7 @@ def test_log_langfuse_generation_handles_no_client(monkeypatch):
 
     # Should not raise
     config.log_langfuse_generation(
-        name="test",
-        input_text="test input",
-        output_payload={"result": "test"}
+        name="test", input_text="test input", output_payload={"result": "test"}
     )
 
 
@@ -236,6 +234,7 @@ def test_configure_langfuse_is_singleton(monkeypatch):
 
 def test_log_langfuse_generation_with_metadata(monkeypatch):
     """Should log generation with metadata to Langfuse."""
+
     class MockObservation:
         def __init__(self):
             self.output = None
@@ -252,14 +251,16 @@ def test_log_langfuse_generation_with_metadata(monkeypatch):
 
         def start_observation(self, name, as_type, input, output, metadata, model):
             obs = MockObservation()
-            self.observations.append({
-                "name": name,
-                "type": as_type,
-                "input": input,
-                "output": output,
-                "metadata": metadata,
-                "model": model
-            })
+            self.observations.append(
+                {
+                    "name": name,
+                    "type": as_type,
+                    "input": input,
+                    "output": output,
+                    "metadata": metadata,
+                    "model": model,
+                }
+            )
             return obs
 
         def flush(self):
@@ -278,7 +279,7 @@ def test_log_langfuse_generation_with_metadata(monkeypatch):
         name="test-generation",
         input_text="test input",
         output_payload={"result": "test output"},
-        metadata={"key": "value"}
+        metadata={"key": "value"},
     )
 
     assert len(mock_client.observations) == 1

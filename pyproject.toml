@@ -52,6 +52,8 @@ src = [
 
 [tool.pytest.ini_options]
 addopts = "-q"
+testpaths = ["tests", "examples/coding_agent/tests"]
+norecursedirs = ["examples/influencer_assistant"]
 
 [tool.coverage.run]
 source = ["src"]

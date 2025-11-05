@@ -65,11 +65,7 @@ class CodeAgent(dspy.Module):
         patterns_str = "\n".join(allowed_patterns)
 
         # Generate file
-        result = self.generate(
-            task=task,
-            repo_state=repo_state,
-            allowed_patterns=patterns_str
-        )
+        result = self.generate(task=task, repo_state=repo_state, allowed_patterns=patterns_str)
 
         # Validate guardrails
         # Check file restrictions
@@ -92,9 +88,7 @@ class CodeAgent(dspy.Module):
                 f"Filename does not match allowed patterns. Allowed: {allowed_patterns}, Got: {result.filename}"
             )
         if not risk_valid:
-            raise ValueError(
-                f"Risk level must be low/medium/high, got: {result.risk_level}"
-            )
+            raise ValueError(f"Risk level must be low/medium/high, got: {result.risk_level}")
         if not content_valid:
             raise ValueError("File content cannot be empty")
 
@@ -105,8 +99,8 @@ class CodeAgent(dspy.Module):
                 "filename": result.filename,
                 "content_length": len(result.content),
                 "explanation": result.explanation,
-                "risk_level": result.risk_level
-            }
+                "risk_level": result.risk_level,
+            },
         )
 
         return result

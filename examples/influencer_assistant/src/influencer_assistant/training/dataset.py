@@ -252,9 +252,7 @@ def build_training_dataset() -> List[dspy.Example]:
             "idea3_summary": ideas[2]["summary"],
             "idea3_pillar": ideas[2]["pillar"],
         }
-        examples.append(
-            dspy.Example(**fields).with_inputs("profile_context", "request")
-        )
+        examples.append(dspy.Example(**fields).with_inputs("profile_context", "request"))
 
     return examples
 

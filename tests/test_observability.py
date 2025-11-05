@@ -69,20 +69,20 @@ def test_log_generation_helper(monkeypatch):
     calls = []
 
     def mock_log(*, name, input_text, output_payload, metadata=None):
-        calls.append({
-            "name": name,
-            "input_text": input_text,
-            "output_payload": output_payload,
-            "metadata": metadata
-        })
+        calls.append(
+            {
+                "name": name,
+                "input_text": input_text,
+                "output_payload": output_payload,
+                "metadata": metadata,
+            }
+        )
 
     monkeypatch.setattr(base_agent_module, "log_langfuse_generation", mock_log)
 
     provider = ObservabilityProvider(observation_name="test-agent")
     provider.log_generation(
-        input_data={"test": "input"},
-        output_data={"result": "output"},
-        custom_meta="value"
+        input_data={"test": "input"}, output_data={"result": "output"}, custom_meta="value"
     )
 
     assert len(calls) == 1

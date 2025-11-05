@@ -1,7 +1,7 @@
 """Observability provider for agents using composition pattern."""
 
 import logging
-from typing import Any, Dict, Optional
+from typing import Any, Dict
 from .config import configure_lm_from_env, log_langfuse_generation
 
 LOGGER = logging.getLogger(__name__)
@@ -45,12 +45,7 @@ class ObservabilityProvider:
         self.observation_name = observation_name
         self.logger = LOGGER.getChild(observation_name)
 
-    def log_generation(
-        self,
-        input_data: Any,
-        output_data: Dict[str, Any],
-        **metadata
-    ) -> None:
+    def log_generation(self, input_data: Any, output_data: Dict[str, Any], **metadata) -> None:
         """Helper to log generation to Langfuse.
 
         Args:
@@ -62,11 +57,13 @@ class ObservabilityProvider:
             name=self.observation_name,
             input_text=str(input_data),
             output_payload=output_data,
-            metadata=metadata or None
+            metadata=metadata or None,
         )
 
 
-def create_observability(observation_name: str, *, configure_lm: bool = True) -> ObservabilityProvider:
+def create_observability(
+    observation_name: str, *, configure_lm: bool = True
+) -> ObservabilityProvider:
     """Factory function to create an ObservabilityProvider with optional LM configuration.
 
     Args:

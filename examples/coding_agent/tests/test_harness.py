@@ -36,7 +36,9 @@ class TestRunCommand:
 
     def test_run_command_captures_output(self):
         """Test that stdout and stderr are captured."""
-        result = run_command(["python", "-c", "print('out'); import sys; sys.stderr.write('err')"], cwd=".")
+        result = run_command(
+            ["python", "-c", "print('out'); import sys; sys.stderr.write('err')"], cwd="."
+        )
         assert "out" in result.stdout
         assert "err" in result.stderr
 
@@ -50,8 +52,8 @@ class TestRepoSnapshot:
         # Mock git commands
         mock_run_command.side_effect = [
             Mock(stdout="file1.py\nfile2.py\n"),  # git ls-files
-            Mock(stdout="diff content\n"),         # git diff
-            Mock(stdout=" M file1.py\n"),          # git status
+            Mock(stdout="diff content\n"),  # git diff
+            Mock(stdout=" M file1.py\n"),  # git status
         ]
 
         snapshot = repo_snapshot("/fake/repo")
@@ -66,7 +68,9 @@ class TestRepoSnapshot:
         assert mock_run_command.call_count == 3
         mock_run_command.assert_any_call(["git", "ls-files"], cwd="/fake/repo")
         mock_run_command.assert_any_call(["git", "diff"], cwd="/fake/repo", check=False)
-        mock_run_command.assert_any_call(["git", "status", "--short"], cwd="/fake/repo", check=False)
+        mock_run_command.assert_any_call(
+            ["git", "status", "--short"], cwd="/fake/repo", check=False
+        )
 
     @patch("adl_agent.harness.run_command")
     def test_repo_snapshot_handles_error(self, mock_run_command):
@@ -218,7 +222,7 @@ class TestFormatLintAndTest:
         """Test when all checks pass."""
         mock_run_command.side_effect = [
             Mock(returncode=0, stdout="All checks passed!", stderr=""),  # ruff
-            Mock(returncode=0, stdout="5 passed", stderr=""),            # pytest
+            Mock(returncode=0, stdout="5 passed", stderr=""),  # pytest
         ]
 
         all_passed, output = format_lint_and_test("/fake/repo")
@@ -234,7 +238,7 @@ class TestFormatLintAndTest:
         """Test when ruff fails."""
         mock_run_command.side_effect = [
             Mock(returncode=1, stdout="", stderr="Found 3 errors"),  # ruff fails
-            Mock(returncode=0, stdout="5 passed", stderr=""),        # pytest passes
+            Mock(returncode=0, stdout="5 passed", stderr=""),  # pytest passes
         ]
 
         all_passed, output = format_lint_and_test("/fake/repo")
@@ -277,9 +281,7 @@ class TestMakePatchAndTest:
     @patch("adl_agent.harness.repo_snapshot")
     @patch("adl_agent.harness.write_new_file")
     @patch("adl_agent.harness.format_lint_and_test")
-    def test_make_patch_and_test_success(
-        self, mock_format_lint, mock_write, mock_snapshot
-    ):
+    def test_make_patch_and_test_success(self, mock_format_lint, mock_write, mock_snapshot):
         """Test successful file generation and testing."""
         mock_snapshot.return_value = "repo state"
         mock_write.return_value = (True, "file created")
@@ -392,9 +394,7 @@ class TestMakePatchAndTest:
     @patch("adl_agent.harness.repo_snapshot")
     @patch("adl_agent.harness.write_new_file")
     @patch("adl_agent.harness.format_lint_and_test")
-    def test_make_patch_and_test_tests_fail(
-        self, mock_format_lint, mock_write, mock_snapshot
-    ):
+    def test_make_patch_and_test_tests_fail(self, mock_format_lint, mock_write, mock_snapshot):
         """Test when tests fail after writing file."""
         mock_snapshot.return_value = "repo state"
         mock_write.return_value = (True, "file created")

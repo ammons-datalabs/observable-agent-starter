@@ -32,10 +32,7 @@ class VideoIdeaSignature(dspy.Signature):
     profile_context = dspy.InputField(desc="Key details about the creator business")
     request = dspy.InputField(desc="Manager request or constraints")
     response = dspy.OutputField(
-        desc=(
-            "Return exactly 3 numbered lines, each formatted as: "
-            "'Title - Summary | Pillar'."
-        )
+        desc=("Return exactly 3 numbered lines, each formatted as: " "'Title - Summary | Pillar'.")
     )
 
 
@@ -104,10 +101,10 @@ class VideoIdeaGenerator(dspy.Module):
             output_data={
                 "creator_id": profile.creator_id,
                 "handle": profile.handle,
-                "ideas": [asdict(idea) for idea in ideas]
+                "ideas": [asdict(idea) for idea in ideas],
             },
             variation_token=variation_token,
-            fallback_reason=fallback_reason
+            fallback_reason=fallback_reason,
         )
 
         return ideas
@@ -180,9 +177,7 @@ def _fallback_ideas(
     for idx in range(max_ideas):
         pillar = pillars[idx % len(pillars)]
         title = f"{pillar} {base_titles[idx % len(base_titles)]}"
-        summary = (
-            f"Actionable idea inspired by the '{pillar}' pillar to address: {request}."
-        )
+        summary = f"Actionable idea inspired by the '{pillar}' pillar to address: {request}."
         ideas.append(
             VideoIdea(
                 title=title,
