@@ -1,49 +1,27 @@
 graph TB
-    %% Core Framework Architecture
+    %% Core Framework Architecture - Simple and focused
 
-    subgraph Core["Core Framework (src/observable_agent_starter/)"]
+    subgraph Core["Core Framework"]
         direction TB
-        ObsProvider["🧩 ObservabilityProvider<br/>• log_generation()<br/>• Logger infrastructure"]
-        Config["⚙️ Config Module<br/>• configure_lm_from_env()<br/>• configure_langfuse_from_env()"]
-        Factory["🏭 create_observability()<br/>Factory function for setup"]
+        Factory["🏭 create_observability()<br/>Factory function"]
+        ObsProvider["🧩 ObservabilityProvider<br/>• log_generation()<br/>• Logger"]
+        Config["⚙️ Config Module<br/>• LM setup<br/>• Langfuse setup"]
 
         Factory --> ObsProvider
         Factory --> Config
         ObsProvider --> Config
     end
 
-    subgraph Observability["Observability Layer"]
+    subgraph External["External Services"]
         direction TB
         Langfuse["🔍 Langfuse<br/>Tracing & Monitoring"]
-        Config --> Langfuse
     end
 
-    subgraph Testing["Testing & Quality"]
-        direction TB
-        CoreTests["🧪 Core Tests<br/>23 tests • 85%+ coverage"]
-        ExampleTests["🧪 Example Tests<br/>7 integration tests"]
-        DeepEval["📊 DeepEval Metrics<br/>Relevancy • Faithfulness"]
-
-        ObsProvider -.tested by.-> CoreTests
-        Config -.tested by.-> CoreTests
-    end
-
-    subgraph CICD["CI/CD Pipeline"]
-        direction LR
-        CI["⚙️ GitHub Actions<br/>Lint • Type • Test • Coverage"]
-    end
-
-    CoreTests --> CI
-    ExampleTests --> CI
-    DeepEval --> CI
+    Config --> Langfuse
 
     %% Styling
     classDef coreStyle fill:#e1f5ff,stroke:#01579b,stroke-width:3px
-    classDef obsStyle fill:#e8f5e9,stroke:#1b5e20,stroke-width:2px
-    classDef testStyle fill:#fce4ec,stroke:#880e4f,stroke-width:2px
-    classDef ciStyle fill:#f3e5f5,stroke:#4a148c,stroke-width:2px
+    classDef externalStyle fill:#e8f5e9,stroke:#1b5e20,stroke-width:2px
 
-    class ObsProvider,Config,Factory coreStyle
-    class Langfuse obsStyle
-    class CoreTests,ExampleTests,DeepEval testStyle
-    class CI ciStyle
+    class Factory,ObsProvider,Config coreStyle
+    class Langfuse externalStyle

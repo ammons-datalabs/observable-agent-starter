@@ -11,10 +11,10 @@ Observable Agent Starter is built on a minimal, extensible foundation using a co
 ![Core Framework](architecture-core.png)
 
 The core provides:
+- **create_observability()** - Factory function for setup
 - **ObservabilityProvider** - Injected into agents for tracing
-- **Config Module** - LM and Langfuse setup
-- **Testing Infrastructure** - 23 core tests (85%+ coverage), 7 example tests
-- **CI/CD Pipeline** - Automated quality checks
+- **Config Module** - LM and Langfuse configuration
+- **Langfuse Integration** - External tracing service
 
 ### Agent Implementation Pattern
 
