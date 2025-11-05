@@ -1,35 +1,39 @@
-"""Minimal base agent providing config and tracing hooks."""
+"""Observability provider for agents using composition pattern."""
 
 import logging
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 from .config import configure_lm_from_env, log_langfuse_generation
 
 LOGGER = logging.getLogger(__name__)
 
 
-class BaseAgent:
-    """Thin base providing config + observability hooks.
+class ObservabilityProvider:
+    """Provides observability and tracing capabilities via composition.
 
-    Does NOT impose DSPy patterns or business logic.
-    Examples own their own DSPy signatures, fallback policies, etc.
+    Designed to be injected into agents as a dependency rather than
+    inherited via multiple inheritance.
 
     Example usage:
-        from observable_agent_starter import BaseAgent
+        from observable_agent_starter import ObservabilityProvider, create_observability
         import dspy
 
-        class MyAgent(dspy.Module, BaseAgent):
-            def __init__(self):
-                dspy.Module.__init__(self)
-                BaseAgent.__init__(self, observation_name="my-agent")
+        class MyAgent(dspy.Module):
+            def __init__(self, observability: ObservabilityProvider):
+                super().__init__()
+                self.observability = observability
                 self.predict = dspy.ChainOfThought(MySignature)
 
             def forward(self, **kwargs):
                 result = self.predict(**kwargs)
-                self.log_generation(
+                self.observability.log_generation(
                     input_data=kwargs,
                     output_data={"result": result.output}
                 )
                 return result
+
+        # Create and use agent
+        observability = create_observability("my-agent")
+        agent = MyAgent(observability=observability)
     """
 
     def __init__(self, observation_name: str):
@@ -40,13 +44,6 @@ class BaseAgent:
         """
         self.observation_name = observation_name
         self.logger = LOGGER.getChild(observation_name)
-
-        # Auto-configure LM from environment
-        configured = configure_lm_from_env()
-        if configured:
-            self.logger.info("LM configured")
-        else:
-            self.logger.warning("No LM configured; agent may need fallback")
 
     def log_generation(
         self,
@@ -67,3 +64,29 @@ class BaseAgent:
             output_payload=output_data,
             metadata=metadata or None
         )
+
+
+def create_observability(observation_name: str, *, configure_lm: bool = True) -> ObservabilityProvider:
+    """Factory function to create an ObservabilityProvider with optional LM configuration.
+
+    Args:
+        observation_name: Name for Langfuse traces (e.g. "my-agent")
+        configure_lm: Whether to auto-configure LM from environment (default: True)
+
+    Returns:
+        Configured ObservabilityProvider instance
+
+    Example:
+        observability = create_observability("my-agent")
+        agent = MyAgent(observability=observability)
+    """
+    observability = ObservabilityProvider(observation_name)
+
+    if configure_lm:
+        configured = configure_lm_from_env()
+        if configured:
+            observability.logger.info("LM configured")
+        else:
+            observability.logger.warning("No LM configured; agent may need fallback")
+
+    return observability

@@ -11,7 +11,7 @@
 
 | Component | What | Where |
 |-----------|------|-------|
-| **Base Framework** | Thin `BaseAgent` with config + tracing | `src/observable_agent_starter/` |
+| **Base Framework** | `ObservabilityProvider` with config + tracing | `src/observable_agent_starter/` |
 | **Observability** | Langfuse integration | Auto-configured via env vars |
 | **Testing** | pytest + CI/CD | `tests/` + GitHub Actions |
 | **Examples** | Coding agent + Influencer assistant | `examples/` |
@@ -68,7 +68,7 @@ tests/                           # Framework tests
 ### 1. Influencer Assistant - Interactive Demo with DeepEval
 
 Demonstrates:
-- Extending `BaseAgent` for content ideation
+- Composition pattern with `ObservabilityProvider`
 - DSPy prompt optimization (teleprompting)
 - **DeepEval quality metrics** (relevancy, faithfulness, pillar adherence)
 - **Interactive Streamlit dashboard** (best for screenshots!)
@@ -98,7 +98,7 @@ pytest evals/ -v   # DeepEval quality metrics
 ### 2. Coding Agent - Agent-in-the-Loop
 
 Demonstrates:
-- Extending `BaseAgent` for code generation
+- Composition pattern with `ObservabilityProvider`
 - DSPy Chain-of-Thought with guardrails
 - Git integration + PR workflow
 - Operational quality gates (lint, tests, type-check)
@@ -113,18 +113,18 @@ The agent generates new files, automatically strips markdown formatting, runs li
 
 ---
 
-## Extending BaseAgent
+## Building Agents with Composition
 
 ```python
-from observable_agent_starter import BaseAgent
+from observable_agent_starter import ObservabilityProvider, create_observability
 import dspy
 
-class MyAgent(dspy.Module, BaseAgent):
+class MyAgent(dspy.Module):
     """Your custom agent."""
 
-    def __init__(self):
-        dspy.Module.__init__(self)
-        BaseAgent.__init__(self, observation_name="my-agent")
+    def __init__(self, observability: ObservabilityProvider):
+        super().__init__()
+        self.observability = observability
 
         # Your DSPy signatures, modules, etc.
         self.predict = dspy.ChainOfThought(MySignature)
@@ -134,18 +134,22 @@ class MyAgent(dspy.Module, BaseAgent):
         result = self.predict(**kwargs)
 
         # Log to Langfuse
-        self.log_generation(
+        self.observability.log_generation(
             input_data=kwargs,
             output_data={"result": result.output}
         )
 
         return result
+
+# Usage
+observability = create_observability("my-agent")
+agent = MyAgent(observability=observability)
 ```
 
-**BaseAgent provides:**
-- Automatic LM configuration from `OPENAI_*` env vars
-- Langfuse tracing helper (`self.log_generation()`)
+**ObservabilityProvider provides:**
+- Langfuse tracing via `log_generation()`
 - Logging infrastructure
+- Optional LM configuration via `create_observability()`
 
 **You provide:**
 - DSPy signatures and modules
@@ -165,6 +169,25 @@ class MyAgent(dspy.Module, BaseAgent):
 - ✅ Agent-in-the-loop pattern (coding agent)
 - ✅ Eval discipline (influencer DeepEval)
 - ✅ Observability-first design (Langfuse)
+
+---
+
+## Documentation
+
+### Quick Links
+
+- [Architecture Overview](docs/architecture.md) - System design and components
+- [How to Extend BaseAgent](docs/how-to/extend-baseagent.md) - Step-by-step agent creation guide
+- [Contributing Guidelines](CONTRIBUTING.md) - Development workflow and standards
+- [Code of Conduct](CODE_OF_CONDUCT.md) - Community guidelines
+
+### Learn More
+
+- **[Architecture](docs/architecture.md)** explains the BaseAgent pattern, observability layer, and quality assurance strategy
+- **[Extension Guide](docs/how-to/extend-baseagent.md)** walks through creating custom agents with examples and best practices
+- **[Examples](examples/)** demonstrate production-ready patterns:
+  - [Coding Agent](examples/coding_agent/README.md) - File generation with quality gates
+  - [Influencer Assistant](examples/influencer_assistant/README.md) - Content ideation with DeepEval
 
 ---
 

@@ -15,6 +15,7 @@ SRC_DIR = EXAMPLE_ROOT / "src"
 if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
 
+from observable_agent_starter import create_observability  # noqa: E402
 from influencer_assistant.dspy import (  # noqa: E402
     VideoIdeaGenerator,
     configure_lm_from_env,
@@ -114,7 +115,8 @@ def render_idea_generation(profile: InfluencerProfile) -> None:
         submitted = st.form_submit_button("Generate ideas")
 
     if submitted:
-        generator = VideoIdeaGenerator(target_count=target_count)
+        observability = create_observability("influencer-video-ideas", configure_lm=False)
+        generator = VideoIdeaGenerator(observability=observability, target_count=target_count)
         ideas = list(
             generator(
                 profile,

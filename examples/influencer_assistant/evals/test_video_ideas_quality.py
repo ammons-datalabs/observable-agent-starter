@@ -10,6 +10,7 @@ from dotenv import load_dotenv
 
 from influencer_assistant.dspy.video_ideas import VideoIdeaGenerator
 from influencer_assistant.profile import InfluencerProfile
+from observable_agent_starter import create_observability
 
 # Load .env from project root
 project_root = Path(__file__).parent.parent.parent.parent
@@ -25,7 +26,8 @@ pytestmark = pytest.mark.skipif(
 
 @pytest.fixture
 def generator():
-    return VideoIdeaGenerator()
+    observability = create_observability("eval-video-ideas", configure_lm=False)
+    return VideoIdeaGenerator(observability=observability)
 
 
 @pytest.fixture

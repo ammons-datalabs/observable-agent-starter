@@ -1,6 +1,6 @@
 """DSPy-based coding agent with structured outputs and guardrails.
 
-Demonstrates extending BaseAgent from observable_agent_starter.
+Demonstrates composition pattern with ObservabilityProvider from observable_agent_starter.
 """
 
 import dspy
@@ -8,7 +8,7 @@ from langfuse import observe
 from typing import List
 from pathlib import Path
 
-from observable_agent_starter import BaseAgent
+from observable_agent_starter import ObservabilityProvider
 
 
 class CodePatch(dspy.Signature):
@@ -46,16 +46,15 @@ def validate_filename(allowed_patterns: List[str], filename: str) -> bool:
     return matched
 
 
-class CodeAgent(dspy.Module, BaseAgent):
+class CodeAgent(dspy.Module):
     """Autonomous coding agent with guardrails.
 
-    Extends BaseAgent to get automatic LM configuration and tracing helpers.
+    Uses composition pattern with ObservabilityProvider for tracing.
     """
 
-    def __init__(self):
-        dspy.Module.__init__(self)
-        BaseAgent.__init__(self, observation_name="code-agent-generate")
-
+    def __init__(self, observability: ObservabilityProvider):
+        super().__init__()
+        self.observability = observability
         self.generate = dspy.ChainOfThought(CodePatch)
 
     @observe(name="code-agent-generate")
@@ -99,8 +98,8 @@ class CodeAgent(dspy.Module, BaseAgent):
         if not content_valid:
             raise ValueError("File content cannot be empty")
 
-        # Log via BaseAgent helper (in addition to @observe decorator)
-        self.log_generation(
+        # Log via ObservabilityProvider (in addition to @observe decorator)
+        self.observability.log_generation(
             input_data={"task": task, "allowed_patterns": patterns_str},
             output_data={
                 "filename": result.filename,

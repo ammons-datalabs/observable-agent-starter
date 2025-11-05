@@ -7,6 +7,7 @@ import pathlib
 import subprocess
 from adl_agent.harness import make_patch_and_test, run_command
 from adl_agent.agent import CodeAgent
+from observable_agent_starter import create_observability
 import dspy
 
 __version__ = "0.1.0"
@@ -116,8 +117,9 @@ def main():
             # Continue without switching branches
             branch = current_branch
 
-    # Initialize agent
-    agent = CodeAgent()
+    # Initialize agent with observability
+    observability = create_observability("code-agent-generate", configure_lm=False)
+    agent = CodeAgent(observability=observability)
 
     # Generate and test patch
     print(f"🤖 Agent working on task: {args.task}")

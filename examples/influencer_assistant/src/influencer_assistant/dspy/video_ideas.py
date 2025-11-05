@@ -1,6 +1,6 @@
 """DSPy module for generating video ideas from a creator portfolio.
 
-Demonstrates extending BaseAgent from observable_agent_starter.
+Demonstrates composition pattern with ObservabilityProvider from observable_agent_starter.
 """
 
 from __future__ import annotations
@@ -10,7 +10,7 @@ from typing import List, Sequence
 
 import dspy
 
-from observable_agent_starter import BaseAgent
+from observable_agent_starter import ObservabilityProvider
 from influencer_assistant.profile import InfluencerProfile
 
 from .context import render_profile_context
@@ -39,16 +39,15 @@ class VideoIdeaSignature(dspy.Signature):
     )
 
 
-class VideoIdeaGenerator(dspy.Module, BaseAgent):
+class VideoIdeaGenerator(dspy.Module):
     """Generate video ideas grounded in a `InfluencerProfile`.
 
-    Extends BaseAgent to get automatic LM configuration and tracing helpers.
+    Uses composition pattern with ObservabilityProvider for tracing.
     """
 
-    def __init__(self, *, target_count: int = 4) -> None:
-        dspy.Module.__init__(self)
-        BaseAgent.__init__(self, observation_name="influencer-video-ideas")
-
+    def __init__(self, observability: ObservabilityProvider, *, target_count: int = 4) -> None:
+        super().__init__()
+        self.observability = observability
         self.predict = dspy.Predict(VideoIdeaSignature)
         self._target_count = target_count
 
@@ -99,8 +98,8 @@ class VideoIdeaGenerator(dspy.Module, BaseAgent):
                 )
                 fallback_reason = "empty_response"
 
-        # Log via BaseAgent helper
-        self.log_generation(
+        # Log via ObservabilityProvider
+        self.observability.log_generation(
             input_data={"profile": profile.handle, "request": request},
             output_data={
                 "creator_id": profile.creator_id,
