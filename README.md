@@ -25,6 +25,24 @@
 - **DeepEval** - LLM quality metrics (influencer example)
 - **GitHub Actions** - CI/CD pipeline
 
+## Get Started in 3 Minutes
+
+**This is a GitHub template.** Create your own project with automated setup:
+
+1. Click **"Use this template"** → "Create a new repository"
+2. Clone your repo and customize:
+   ```bash
+   python scripts/customize_template.py \
+     --name your_project \
+     --author "Your Name" \
+     --email you@example.com
+   ```
+3. Install and verify: `make dev && make test`
+
+The script automatically renames the package, updates all imports, and configures your project. [Full setup guide →](#using-as-github-template)
+
+---
+
 ## Architecture
 
 The framework uses a minimal composition pattern for clean dependency injection:
@@ -178,11 +196,6 @@ agent = MyAgent(observability=observability)
 - Testable (pytest + CI)
 - Extensible (ready for your deployment layer)
 
-**For Synthenova/Employer Showcase:**
-- ✅ Agent-in-the-loop pattern (coding agent)
-- ✅ Eval discipline (influencer DeepEval)
-- ✅ Observability-first design (Langfuse)
-
 ---
 
 ## Documentation
@@ -204,20 +217,79 @@ agent = MyAgent(observability=observability)
 
 ---
 
-## Using with GitHub or Codespaces
+## Using as GitHub Template
 
-1. Create a new empty repo on GitHub (public for open source).
-2. Download this starter as a ZIP, unzip, then:
+This repo is configured as a GitHub template for easy project creation.
+
+### Quick Start (Recommended)
+
+1. **Create from template:**
+   - Click "Use this template" → "Create a new repository"
+   - Name your repo (e.g., `my-agent-project`)
+   - Clone your new repo locally
+
+2. **Customize for your project:**
    ```bash
-   git init
-   git add .
-   git commit -m "chore: bootstrap Observable Agent Starter"
-   git branch -M main
-   git remote add origin <your-repo-url>
-   git push -u origin main
+   cd my-agent-project
+   python scripts/customize_template.py \
+     --name my_agent_project \
+     --author "Your Name" \
+     --email you@example.com \
+     --description "My awesome LLM agent"
    ```
-3. Open in Codespaces (or clone locally). CI will run automatically on each PR.
-4. Add `LANGFUSE_*` keys as repo or Codespaces secrets if you want tracing enabled.
+
+3. **Verify customization:**
+   ```bash
+   make dev              # Install dependencies
+   make test             # Run tests (should pass)
+   my-agent-project --version   # Test CLI works
+   ```
+
+4. **Configure secrets:**
+   - Copy `.env.example` to `.env`
+   - Add your `OPENAI_API_KEY`
+   - Add `LANGFUSE_*` keys (optional, for observability)
+
+5. **Start building:**
+   - Your package is in `src/my_agent_project/`
+   - Add your agent logic using `ObservabilityProvider`
+   - Extend `cli.py` with your commands
+   - Write tests in `tests/`
+
+### What the Customization Script Does
+
+The `customize_template.py` script automates ~15 manual steps:
+- Renames `src/observable_agent_starter` → `src/yourproject`
+- Updates all imports throughout the codebase
+- Updates `pyproject.toml` metadata
+- Updates CI workflow references
+- Updates README badges
+- Creates `.env.example` with template values
+
+**Time saved:** ~30 minutes of manual renaming and find/replace
+
+### Post-Template Checklist
+
+After running the customization script:
+
+- [ ] Review changes: `git diff`
+- [ ] Update README.md with your project description
+- [ ] Configure `.env` with your API keys
+- [ ] Test: `make test` passes
+- [ ] Test: `yourproject --version` works
+- [ ] Update GitHub repo settings (description, topics)
+- [ ] Configure CI secrets in GitHub (for Langfuse, Codecov)
+- [ ] Commit: `git add . && git commit -m "chore: customize from template"`
+- [ ] (Optional) Delete `examples/` if you don't need them
+
+### Alternative: Manual Setup
+
+If you prefer not to use the template feature:
+
+1. Clone or download this repo
+2. Remove `.git` and start fresh: `rm -rf .git && git init`
+3. Run the customization script (as shown above)
+4. Create your own GitHub repo and push
 
 ---
 
