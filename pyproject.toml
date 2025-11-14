@@ -23,7 +23,7 @@ dependencies = [
 observable-agent = "observable_agent_starter.cli:main"
 
 [tool.hatch.build.targets.wheel]
-packages = ["observable_agent_starter"]
+packages = ["src/observable_agent_starter"]
 
 [project.optional-dependencies]
 dev = [

@@ -110,9 +110,9 @@ def update_pyproject_toml(
         flags=re.DOTALL,
     )
 
-    # Update package path (Hatch uses paths relative to src/)
+    # Update package path (Hatch uses src-layout)
     content = re.sub(
-        r'packages = \["observable_agent_starter"\]', f'packages = ["{new_name}"]', content
+        r'packages = \["src/observable_agent_starter"\]', f'packages = ["src/{new_name}"]', content
     )
 
     # Update script entry point
